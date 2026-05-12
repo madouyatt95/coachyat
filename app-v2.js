@@ -177,11 +177,16 @@ function updateLiveTimerUI() {
 function finishSession() {
   clearInterval(liveInterval);
   state.sessionsCompleted++;
+  state.workoutCompleted = true;
+  addXP(300); // Reward XP
+  saveState();
+  updateDashboardWorkout();
+  
   document.getElementById('overlay-live').innerHTML = `
     <div style="text-align:center; padding: 40px 20px;">
       <div style="font-size:80px; margin-bottom:20px;">🏆</div>
       <div class="text-2xl fw-800">Séance Terminée !</div>
-      <div class="text-md text-dim mt-8">Excellente session.</div>
+      <div class="text-md text-dim mt-8">Excellente session. Tu gagnes <span class="text-green fw-700">+300 XP</span></div>
       <div class="summary-stats mt-20">
         <div class="summary-stat"><div class="val">${liveState.isQuick ? '10' : '45'}</div><div class="lbl">MINUTES</div></div>
         <div class="summary-stat"><div class="val text-green">${liveState.isQuick ? '120' : '320'}</div><div class="lbl">KCAL</div></div>

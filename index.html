@@ -298,15 +298,15 @@
   </div>
   <div class="section-title">Ton parcours</div>
   <div class="profile-stats">
-    <div class="profile-stat"><div class="profile-stat-value">12</div><div class="profile-stat-label">Jour</div><div class="profile-stat-sub">/ 90</div><div style="margin-top:6px"><div style="height:4px;background:var(--glass);border-radius:2px"><div style="width:13%;height:100%;background:var(--green);border-radius:2px"></div></div><div class="text-xs text-dim" style="margin-top:4px">13%</div></div></div>
-    <div class="profile-stat"><div class="profile-stat-value">-12 kg</div><div class="profile-stat-label">Objectif</div><div class="profile-stat-sub">en 90 jours</div></div>
+    <div class="profile-stat"><div class="profile-stat-value">12</div><div class="profile-stat-label">Jour</div><div class="profile-stat-sub">/ 90</div><div style="margin-top:6px"><div style="height:4px;background:var(--glass);border-radius:2px"><div id="profile-day-bar" style="width:13%;height:100%;background:var(--green);border-radius:2px"></div></div><div class="text-xs text-dim" style="margin-top:4px">13%</div></div></div>
+    <div class="profile-stat"><div class="profile-stat-value" id="profile-level-badge">Niveau 2</div><div class="profile-stat-label">Évolution</div><div class="profile-stat-sub" id="profile-xp-text">1450 / 4000 XP</div><div style="margin-top:6px"><div style="height:4px;background:var(--glass);border-radius:2px"><div id="profile-xp-bar" style="width:36%;height:100%;background:var(--cyan);border-radius:2px"></div></div></div></div>
   </div>
 
   <div class="section-title mt-16">Paramètres</div>
   <div class="menu-item" onclick="openPersonalInfo()"><div class="menu-item-left"><div class="menu-icon">📋</div><div class="menu-label">Informations personnelles</div></div><div class="menu-arrow">›</div></div>
-  <div class="menu-item"><div class="menu-item-left"><div class="menu-icon">🎯</div><div class="menu-label">Mes préférences</div></div><div class="menu-arrow">›</div></div>
-  <div class="menu-item"><div class="menu-item-left"><div class="menu-icon">🏋️</div><div class="menu-label">Matériel disponible</div></div><div class="menu-arrow">›</div></div>
-  <div class="menu-item"><div class="menu-item-left"><div class="menu-icon">🔔</div><div class="menu-label">Notifications</div></div><div class="menu-arrow">›</div></div>
+  <div class="menu-item" onclick="openPreferences()"><div class="menu-item-left"><div class="menu-icon">🎯</div><div class="menu-label">Mes préférences</div></div><div class="menu-arrow">›</div></div>
+  <div class="menu-item" onclick="openEquipment()"><div class="menu-item-left"><div class="menu-icon">🏋️</div><div class="menu-label">Matériel disponible</div></div><div class="menu-arrow">›</div></div>
+  <div class="menu-item" onclick="openNotifications()"><div class="menu-item-left"><div class="menu-icon">🔔</div><div class="menu-label">Notifications</div></div><div class="menu-arrow">›</div></div>
   <div class="menu-item"><div class="menu-item-left"><div class="menu-icon">❓</div><div class="menu-label">Aide & support</div></div><div class="menu-arrow">›</div></div>
   <div class="menu-item" onclick="resetAccount()"><div class="menu-item-left"><div class="menu-icon" style="color:var(--red)">🚪</div><div class="menu-label" style="color:var(--red)">Déconnexion</div></div></div>
   <div class="card mt-16" style="cursor:pointer;border-color:var(--purple);background:var(--purple-dim)" onclick="openPaywall()">
@@ -740,6 +740,94 @@
   }
 </script>
 <script src="app-v7.js"></script>
+
+<!-- MODAL PREFERENCES -->
+<div id="modal-prefs" class="modal-backdrop hidden">
+  <div class="modal-content">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Mes préférences</div>
+    
+    <div class="mb-16">
+      <label class="text-sm fw-600 block mb-4">Objectif principal</label>
+      <select id="pref-goal" class="onboarding-input" style="width:100%; appearance:none;">
+        <option>Perte de poids</option>
+        <option>Prise de masse</option>
+        <option>Santé & Bien-être</option>
+      </select>
+    </div>
+    
+    <div class="flex items-center justify-between mb-20">
+      <div>
+        <div class="fw-600">Voix du Coach</div>
+        <div class="text-xs text-dim">Active les conseils vocaux pendant la séance</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="pref-voice">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    
+    <button class="btn btn-primary w-full" onclick="savePreferences()">Enregistrer</button>
+    <button class="btn btn-outline w-full mt-12" onclick="document.getElementById('modal-prefs').classList.add('hidden')">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL MATERIEL -->
+<div id="modal-equipment" class="modal-backdrop hidden">
+  <div class="modal-content">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Matériel disponible</div>
+    <div class="text-sm text-dim mb-16">Coche ce que tu as à disposition pour que l'IA adapte tes exercices.</div>
+    
+    <div id="equip-list" class="mb-20">
+      <!-- Dynamic list from JS -->
+    </div>
+    
+    <button class="btn btn-primary w-full" onclick="document.getElementById('modal-equipment').classList.add('hidden')">Terminer</button>
+  </div>
+</div>
+
+<!-- MODAL NOTIFICATIONS -->
+<div id="modal-notifs" class="modal-backdrop hidden">
+  <div class="modal-content">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Notifications</div>
+    
+    <div class="flex items-center justify-between mb-16">
+      <div>
+        <div class="fw-600">Rappels de séance</div>
+        <div class="text-xs text-dim">Te prévient 15min avant l'heure prévue</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="notif-workout">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    
+    <div class="flex items-center justify-between mb-16">
+      <div>
+        <div class="fw-600">Rappels de repas</div>
+        <div class="text-xs text-dim">Pour ne jamais rater tes macros</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="notif-meals">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    
+    <button class="btn btn-primary w-full" onclick="saveNotifications()">Fermer</button>
+  </div>
+</div>
+
+<style>
+/* Switch Toggle UI */
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--glass); transition: .4s; border-radius: 24px; border: 1px solid var(--glass-border); }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: #fff; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--green); }
+input:checked + .slider:before { transform: translateX(20px); }
+</style>
 
 </body>
 </html>

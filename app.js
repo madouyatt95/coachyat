@@ -12,11 +12,44 @@ const state = {
   day: parseInt(getStorage('fc_day', '12')),
   streak: parseInt(getStorage('fc_streak', '12')),
   disciplineScore: parseInt(getStorage('fc_discipline', '87')),
+  xp: parseInt(getStorage('fc_xp', '1450')),
+  level: parseInt(getStorage('fc_level', '2')),
   workoutCompleted: getStorage('fc_workout_completed', 'false') === 'true',
   weight: getStorage('fc_weight', [82.6,82.1,81.5,81.0,80.5,80.2,79.8,79.5,79.2,79.0,78.7,78.4]),
   sessionsCompleted: parseInt(getStorage('fc_sessions', '18')),
-  sessionsTarget: 20
+  sessionsTarget: 20,
+  equipment: getStorage('fc_equip', ['none', 'dumbbells']),
+  prefs: getStorage('fc_prefs', { goal: 'Prise de masse', theme: 'dark', coachVoice: true }),
+  notifs: getStorage('fc_notifs', { workout: true, meals: true, news: false })
 };
+
+function saveState() {
+  localStorage.setItem('fc_day', state.day);
+  localStorage.setItem('fc_streak', state.streak);
+  localStorage.setItem('fc_discipline', state.disciplineScore);
+  localStorage.setItem('fc_xp', state.xp);
+  localStorage.setItem('fc_level', state.level);
+  localStorage.setItem('fc_workout_completed', state.workoutCompleted);
+  localStorage.setItem('fc_sessions', state.sessionsCompleted);
+  localStorage.setItem('fc_equip', JSON.stringify(state.equipment));
+  localStorage.setItem('fc_prefs', JSON.stringify(state.prefs));
+  localStorage.setItem('fc_notifs', JSON.stringify(state.notifs));
+}
+
+function addXP(amount) {
+  state.xp += amount;
+  const nextLevelXP = state.level * 2000;
+  if (state.xp >= nextLevelXP) {
+    state.level++;
+    showLevelUpModal();
+  }
+  saveState();
+  updateProfileUI();
+}
+
+function showLevelUpModal() {
+  alert(`FÉLICITATIONS ! Tu passes au Niveau ${state.level} 🏆`);
+}
 
 const exercises = [
   // Pectoraux / Triceps
@@ -124,25 +157,119 @@ function initApp() {
   drawNutritionRing();
   drawDisciplineArc();
   drawWeightChart();
+  updateProfileUI();
+}
+
+function updateProfileUI() {
+  if (!state.user) return;
+  
+  // Stats
+  const dayValue = document.querySelector('.profile-stat-value');
+  if (dayValue) dayValue.textContent = state.day;
+  
+  const progPct = Math.floor((state.day / 90) * 100);
+  const progBar = document.querySelector('.profile-stat [style*="width"]');
+  if (progBar) progBar.style.width = progPct + '%';
+  
+  const progText = document.querySelector('.profile-stat .text-xs');
+  if (progText) progText.textContent = progPct + '%';
+
+  // XP / Level
+  const levelEl = document.getElementById('profile-level-badge');
+  if (levelEl) levelEl.textContent = `Niveau ${state.level}`;
+  
+  const xpEl = document.getElementById('profile-xp-text');
+  if (xpEl) {
+    const nextLevelXP = state.level * 2000;
+    xpEl.textContent = `${state.xp} / ${nextLevelXP} XP`;
+    const xpBar = document.getElementById('profile-xp-bar');
+    if (xpBar) xpBar.style.width = Math.min(100, (state.xp / nextLevelXP) * 100) + '%';
+  }
+}
+
+function openPreferences() {
+  document.getElementById('pref-goal').value = state.prefs.goal;
+  document.getElementById('pref-voice').checked = state.prefs.coachVoice;
+  document.getElementById('modal-prefs').classList.remove('hidden');
+}
+
+function savePreferences() {
+  state.prefs.goal = document.getElementById('pref-goal').value;
+  state.prefs.coachVoice = document.getElementById('pref-voice').checked;
+  saveState();
+  document.getElementById('modal-prefs').classList.add('hidden');
+}
+
+function openEquipment() {
+  const container = document.getElementById('equip-list');
+  const items = [
+    {id:'none', label:'Poids du corps', emoji:'🏃'},
+    {id:'dumbbells', label:'Haltères', emoji:'🏋️'},
+    {id:'bench', label:'Banc de muscu', emoji:'🧱'},
+    {id:'elastic', label:'Élastiques', emoji:'🎗️'},
+    {id:'gym', label:'Salle de sport', emoji:'🏢'}
+  ];
+  
+  container.innerHTML = items.map(item => `
+    <label class="menu-item" style="cursor:pointer">
+      <div class="menu-item-left">
+        <div class="menu-icon">${item.emoji}</div>
+        <div class="menu-label">${item.label}</div>
+      </div>
+      <input type="checkbox" value="${item.id}" ${state.equipment.includes(item.id) ? 'checked' : ''} onchange="toggleEquip('${item.id}', this.checked)">
+    </label>
+  `).join('');
+  
+  document.getElementById('modal-equipment').classList.remove('hidden');
+}
+
+function toggleEquip(id, checked) {
+  if (checked) {
+    if (!state.equipment.includes(id)) state.equipment.push(id);
+  } else {
+    state.equipment = state.equipment.filter(e => e !== id);
+  }
+  saveState();
+}
+
+function openNotifications() {
+  document.getElementById('notif-workout').checked = state.notifs.workout;
+  document.getElementById('notif-meals').checked = state.notifs.meals;
+  document.getElementById('modal-notifs').classList.remove('hidden');
+}
+
+function saveNotifications() {
+  state.notifs.workout = document.getElementById('notif-workout').checked;
+  state.notifs.meals = document.getElementById('notif-meals').checked;
+  saveState();
+  document.getElementById('modal-notifs').classList.add('hidden');
 }
 
 function updateDashboardWorkout() {
   const statusLabel = document.getElementById('dashboard-workout-status-label');
   const workoutName = document.getElementById('dashboard-workout-name');
   const workoutBtn = document.getElementById('dashboard-workout-btn');
+  const workoutCard = workoutName?.closest('.card');
   
+  if (!statusLabel || !workoutName || !workoutBtn) return;
+
   if (state.workoutCompleted) {
     statusLabel.textContent = "SÉANCE TERMINÉE ✅";
     statusLabel.style.color = "var(--green)";
-    workoutName.textContent = "Bien joué pour aujourd'hui !";
+    workoutName.textContent = "Bien joué ! Récupération en cours.";
     workoutBtn.textContent = "Voir le récapitulatif";
     workoutBtn.onclick = () => showScreen('screen-progress');
+    if (workoutCard) workoutCard.style.borderColor = "var(--green)";
   } else {
     statusLabel.textContent = "SÉANCE DU JOUR";
     statusLabel.style.color = "";
-    workoutName.textContent = "Push Upper Body"; // Should be dynamic based on day
+    // Dynamic naming based on day
+    const dayMod = state.day % 4;
+    const routineNames = ["Push Upper Body", "Legs & Glutes", "Pull & Back", "Full Body Core"];
+    workoutName.textContent = routineNames[dayMod] || "Push Upper Body";
     workoutBtn.textContent = "▶ Commencer ma séance";
     workoutBtn.onclick = () => showScreen('screen-training');
+    if (workoutCard) workoutCard.style.borderColor = "var(--glass-border)";
   }
 }
 
