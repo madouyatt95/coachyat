@@ -11,6 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="styles-v2.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 </head>
 <body>
 
@@ -37,7 +38,7 @@
   <div class="flex justify-between items-center" style="padding:4px 0 12px">
     <div>
       <div class="text-sm text-dim">Jour <span id="day-count">12</span> / 90</div>
-      <div class="text-xl fw-800" style="margin-top:4px">On ne lâche rien 💪</div>
+      <div class="text-xl fw-800" style="margin-top:4px" id="dashboard-user-greeting">Bonjour 👋</div>
       <div class="text-sm text-dim" style="margin-top:2px">Chaque jour te rapproche de ton meilleur toi.</div>
     </div>
     <div class="progress-ring" id="today-ring"></div>
@@ -73,8 +74,8 @@
   <div class="workout-hero" onclick="showScreen('screen-training')">
     <img src="images/workout-hero.png" alt="Workout">
     <div class="workout-hero-overlay">
-      <div class="text-xs text-dim" style="margin-bottom:4px">SÉANCE DU JOUR</div>
-      <div class="text-lg fw-700">Push Upper Body</div>
+      <div class="text-xs text-dim" style="margin-bottom:4px" id="dashboard-workout-status-label">SÉANCE DU JOUR</div>
+      <div class="text-lg fw-700" id="dashboard-workout-name">Push Upper Body</div>
       <div style="display:flex;gap:12px;margin-top:6px">
         <span class="workout-hero-badge">🕐 45 min</span>
         <span class="workout-hero-badge">⚡ Intermédiaire</span>
@@ -82,7 +83,7 @@
       <div class="workout-hero-badge" style="margin-top:6px">🔥 320 kcal</div>
     </div>
   </div>
-  <button class="btn btn-primary mb-16" onclick="showScreen('screen-training')">▶ Commencer ma séance</button>
+  <button class="btn btn-primary mb-16" id="dashboard-workout-btn" onclick="showScreen('screen-training')">▶ Commencer ma séance</button>
 
   <div class="card">
     <div class="flex justify-between items-center">
@@ -149,7 +150,7 @@
   </div>
   
   <div class="flex gap-12 mb-16">
-    <button class="btn btn-outline" style="flex:1; border-color:var(--orange); color:var(--orange);" onclick="document.getElementById('modal-map').classList.remove('hidden')">🗺️ Drop Zone</button>
+    <button class="btn btn-outline" style="flex:1; border-color:var(--orange); color:var(--orange);" onclick="initMap()">🗺️ Drop Zone</button>
     <button class="btn btn-outline" style="flex:1; border-color:var(--purple); color:var(--purple);" onclick="startAudioCardio()">🎧 Run Audio</button>
   </div>
   
@@ -157,8 +158,8 @@
   <div class="card">
     <div id="exercise-list"></div>
   </div>
-  <button class="btn btn-primary mb-16">▶ Démarrer la séance</button>
-  <div class="warmup-card mb-16">
+  <button class="btn btn-primary mb-16" id="training-workout-btn" onclick="openLiveSession()">▶ Démarrer la séance</button>
+  <div class="warmup-card mb-16" style="cursor:pointer" onclick="document.getElementById('modal-warmup').classList.remove('hidden')">
     <div class="warmup-icon">🔥</div>
     <div>
       <div class="text-sm fw-600">Échauffement conseillé</div>
@@ -194,7 +195,7 @@
   
   <div class="calorie-progress"><div class="calorie-progress-fill" style="width: 65%; background: var(--green);"></div></div>
   
-  <div class="meal-slot" onclick="alert('Ajout Petit-déjeuner...')">
+  <div class="meal-slot" onclick="openAddMeal('Petit-déjeuner')">
     <div class="meal-slot-icon">🍳</div>
     <div class="meal-slot-info">
       <div class="meal-slot-name">Petit-déjeuner</div>
@@ -213,7 +214,7 @@
     </div>
   </div>
 
-  <div class="meal-slot" onclick="alert('Ajout Dîner...')">
+  <div class="meal-slot" onclick="openAddMeal('Dîner')">
     <div class="meal-slot-icon">🥗</div>
     <div class="meal-slot-info">
       <div class="meal-slot-name">Dîner</div>
@@ -302,12 +303,12 @@
   </div>
 
   <div class="section-title mt-16">Paramètres</div>
-  <div class="menu-item"><div class="menu-item-left"><div class="menu-icon">📋</div><div class="menu-label">Informations personnelles</div></div><div class="menu-arrow">›</div></div>
+  <div class="menu-item" onclick="openPersonalInfo()"><div class="menu-item-left"><div class="menu-icon">📋</div><div class="menu-label">Informations personnelles</div></div><div class="menu-arrow">›</div></div>
   <div class="menu-item"><div class="menu-item-left"><div class="menu-icon">🎯</div><div class="menu-label">Mes préférences</div></div><div class="menu-arrow">›</div></div>
   <div class="menu-item"><div class="menu-item-left"><div class="menu-icon">🏋️</div><div class="menu-label">Matériel disponible</div></div><div class="menu-arrow">›</div></div>
   <div class="menu-item"><div class="menu-item-left"><div class="menu-icon">🔔</div><div class="menu-label">Notifications</div></div><div class="menu-arrow">›</div></div>
   <div class="menu-item"><div class="menu-item-left"><div class="menu-icon">❓</div><div class="menu-label">Aide & support</div></div><div class="menu-arrow">›</div></div>
-
+  <div class="menu-item" onclick="resetAccount()"><div class="menu-item-left"><div class="menu-icon" style="color:var(--red)">🚪</div><div class="menu-label" style="color:var(--red)">Déconnexion</div></div></div>
   <div class="card mt-16" style="cursor:pointer;border-color:var(--purple);background:var(--purple-dim)" onclick="openPaywall()">
     <div class="flex items-center gap-12">
       <div style="font-size:24px">👑</div>
@@ -602,7 +603,84 @@
     </div>
   </div>
 </div>
+<!-- MODAL PERSONAL INFO -->
+<div id="modal-personal-info" class="modal-backdrop hidden" style="z-index: 600;">
+  <div class="modal-content">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Informations personnelles</div>
+    
+    <div class="mb-16">
+      <label class="text-sm fw-600 block mb-4">Nom complet</label>
+      <input type="text" id="info-name" class="onboarding-input" style="width:100%; margin:0;">
+    </div>
+    <div class="mb-16">
+      <label class="text-sm fw-600 block mb-4">Âge</label>
+      <input type="number" id="info-age" class="onboarding-input" style="width:100%; margin:0;">
+    </div>
+    
+    <button class="btn btn-primary w-full mt-12" onclick="savePersonalInfo()">Enregistrer</button>
+    <button class="btn btn-outline w-full mt-12" onclick="document.getElementById('modal-personal-info').classList.add('hidden')">Fermer</button>
+  </div>
+</div>
+<!-- MODAL WARMUP -->
+<div id="modal-warmup" class="modal-backdrop hidden" style="z-index: 600;">
+  <div class="modal-content">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Échauffement Conseillé 🔥</div>
+    <div class="text-sm text-dim mb-16">Prépare ton corps en 5 minutes pour éviter les blessures.</div>
+    
+    <div class="quick-exercise-list">
+      <div class="quick-exercise"><span class="quick-exercise-name">Jumping Jacks</span><span class="quick-exercise-dur">1 min</span></div>
+      <div class="quick-exercise"><span class="quick-exercise-name">Rotations d'épaules</span><span class="quick-exercise-dur">1 min</span></div>
+      <div class="quick-exercise"><span class="quick-exercise-name">Squats à vide</span><span class="quick-exercise-dur">1 min</span></div>
+      <div class="quick-exercise"><span class="quick-exercise-name">Rotations de hanches</span><span class="quick-exercise-dur">1 min</span></div>
+      <div class="quick-exercise"><span class="quick-exercise-name">Échauffement poignets</span><span class="quick-exercise-dur">1 min</span></div>
+    </div>
+    
+    <button class="btn btn-primary w-full mt-20" onclick="document.getElementById('modal-warmup').classList.add('hidden')">C'est parti !</button>
+  </div>
+</div>
 
+<!-- MODAL ADD MEAL -->
+<div id="modal-add-meal" class="modal-backdrop hidden" style="z-index: 600;">
+  <div class="modal-content">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="add-meal-title">Ajouter un repas</div>
+    <div class="text-sm text-dim mb-16">Enregistre tes macros pour un suivi précis.</div>
+    
+    <div class="mb-16">
+      <label class="text-sm fw-600 block mb-4">Aliment / Repas</label>
+      <input type="text" id="meal-name-input" class="onboarding-input" style="width:100%; margin:0;" placeholder="ex: Poulet, Riz, Avocat">
+    </div>
+    
+    <div class="flex gap-12 mb-16">
+      <div style="flex:1;">
+        <label class="text-xs fw-600 block mb-4">Calories</label>
+        <input type="number" id="meal-cal-input" class="onboarding-input" style="width:100%; margin:0;" placeholder="500">
+      </div>
+      <div style="flex:1;">
+        <label class="text-xs fw-600 block mb-4">Protéines (g)</label>
+        <input type="number" id="meal-prot-input" class="onboarding-input" style="width:100%; margin:0;" placeholder="30">
+      </div>
+    </div>
+    
+    <div class="flex gap-12 mb-16">
+      <div style="flex:1;">
+        <label class="text-xs fw-600 block mb-4">Glucides (g)</label>
+        <input type="number" id="meal-carb-input" class="onboarding-input" style="width:100%; margin:0;" placeholder="50">
+      </div>
+      <div style="flex:1;">
+        <label class="text-xs fw-600 block mb-4">Lipides (g)</label>
+        <input type="number" id="meal-fat-input" class="onboarding-input" style="width:100%; margin:0;" placeholder="15">
+      </div>
+    </div>
+    
+    <button class="btn btn-primary w-full mt-12" onclick="saveMeal()">Enregistrer le repas</button>
+    <button class="btn btn-outline w-full mt-12" onclick="document.getElementById('modal-add-meal').classList.add('hidden')">Annuler</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>

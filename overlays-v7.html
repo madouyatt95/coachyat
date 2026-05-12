@@ -107,19 +107,7 @@
       <div class="fw-700">Drop Zone (Beta) 🗺️</div>
       <button class="overlay-close" style="position:static;" onclick="document.getElementById('modal-map').classList.add('hidden')">✕</button>
     </div>
-    <div style="flex:1; background:#1a1f35; position:relative; display:flex; align-items:center; justify-content:center;">
-      <!-- Fake Map Background -->
-      <div style="position:absolute; inset:0; background:radial-gradient(circle at center, transparent, #0A0E1A), repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.05) 40px, rgba(255,255,255,0.05) 41px), repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.05) 40px, rgba(255,255,255,0.05) 41px);"></div>
-      
-      <!-- User Dot -->
-      <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:16px; height:16px; background:#4facfe; border-radius:50%; box-shadow:0 0 0 4px rgba(79,172,254,0.3); animation:pulse 2s infinite;"></div>
-      
-      <!-- Reward Drop -->
-      <div style="position:absolute; top:30%; left:60%; text-align:center;">
-        <div style="font-size:32px; animation:bounce 1.5s infinite;">🎁</div>
-        <div class="text-xs fw-700 text-green" style="background:rgba(0,0,0,0.8); padding:4px 8px; border-radius:4px; margin-top:4px;">1.2 km</div>
-      </div>
-    </div>
+    <div id="map" style="flex:1; background:#1a1f35;"></div>
     <div style="padding:20px;">
       <div class="text-sm text-dim mb-16 text-center">Cours jusqu'à la Drop Zone pour débloquer 1000 XP et une séance secrète.</div>
       <button class="btn btn-primary w-full" onclick="alert('Démarrage du tracking GPS...')">Démarrer le Run</button>

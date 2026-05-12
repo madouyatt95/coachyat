@@ -1,9 +1,13 @@
 // ========== STATE ==========
 const state = {
   user: JSON.parse(localStorage.getItem('fc_user') || 'null'),
-  day: 12, streak: 12, disciplineScore: 87,
-  weight: [82.6,82.1,81.5,81.0,80.5,80.2,79.8,79.5,79.2,79.0,78.7,78.4],
-  sessionsCompleted: 18, sessionsTarget: 20
+  day: parseInt(localStorage.getItem('fc_day') || '12'),
+  streak: parseInt(localStorage.getItem('fc_streak') || '12'),
+  disciplineScore: parseInt(localStorage.getItem('fc_discipline') || '87'),
+  workoutCompleted: localStorage.getItem('fc_workout_completed') === 'true',
+  weight: JSON.parse(localStorage.getItem('fc_weight') || '[82.6,82.1,81.5,81.0,80.5,80.2,79.8,79.5,79.2,79.0,78.7,78.4]'),
+  sessionsCompleted: parseInt(localStorage.getItem('fc_sessions') || '18'),
+  sessionsTarget: 20
 };
 
 const exercises = [
@@ -90,8 +94,12 @@ document.addEventListener('DOMContentLoaded', () => {
 function initApp() {
   if (state.user?.name) {
     document.getElementById('profile-name').textContent = state.user.name;
+    document.getElementById('dashboard-user-greeting').textContent = `Bonjour ${state.user.name.split(' ')[0]} 👋`;
   }
+  
+  updateDashboardWorkout();
   renderExercises();
+  
   drawProgressRing('today-ring', 13, 50, 'var(--green)', '13%');
   drawMiniRing('nut-ring-p', 75, 'var(--green)', 'P');
   drawMiniRing('nut-ring-g', 60, 'var(--orange)', 'G');
@@ -99,6 +107,26 @@ function initApp() {
   drawNutritionRing();
   drawDisciplineArc();
   drawWeightChart();
+}
+
+function updateDashboardWorkout() {
+  const statusLabel = document.getElementById('dashboard-workout-status-label');
+  const workoutName = document.getElementById('dashboard-workout-name');
+  const workoutBtn = document.getElementById('dashboard-workout-btn');
+  
+  if (state.workoutCompleted) {
+    statusLabel.textContent = "SÉANCE TERMINÉE ✅";
+    statusLabel.style.color = "var(--green)";
+    workoutName.textContent = "Bien joué pour aujourd'hui !";
+    workoutBtn.textContent = "Voir le récapitulatif";
+    workoutBtn.onclick = () => showScreen('screen-progress');
+  } else {
+    statusLabel.textContent = "SÉANCE DU JOUR";
+    statusLabel.style.color = "";
+    workoutName.textContent = "Push Upper Body"; // Should be dynamic based on day
+    workoutBtn.textContent = "▶ Commencer ma séance";
+    workoutBtn.onclick = () => showScreen('screen-training');
+  }
 }
 
 // ========== ONBOARDING ==========
@@ -189,6 +217,28 @@ function resetAccount() {
   }
 }
 
+function openPersonalInfo() {
+  if (!state.user) return;
+  document.getElementById('info-name').value = state.user.name || '';
+  document.getElementById('info-age').value = state.user.age || '';
+  document.getElementById('modal-personal-info').classList.remove('hidden');
+}
+
+function savePersonalInfo() {
+  const name = document.getElementById('info-name').value;
+  const age = document.getElementById('info-age').value;
+  
+  if (name) {
+    state.user.name = name;
+    state.user.age = age;
+    localStorage.setItem('fc_user', JSON.stringify(state.user));
+    document.getElementById('profile-name').textContent = name;
+    document.getElementById('dashboard-user-greeting').textContent = `Bonjour ${name.split(' ')[0]} 👋`;
+    document.getElementById('modal-personal-info').classList.add('hidden');
+    alert("Informations mises à jour !");
+  }
+}
+
 // ========== NAVIGATION ==========
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -222,8 +272,7 @@ function renderExercises() {
   // Filter exercises
   let filteredExercises = exercises.filter(e => allowedEquip.includes(e.equip));
   
-  // Pick 5 random or first 5 for the daily workout to not show 30 items
-  // Simple randomization for demo
+  // Simple randomization for demo, but we should make it consistent for the day
   filteredExercises = filteredExercises.sort(() => 0.5 - Math.random()).slice(0, 5);
 
   // Store them so live workout uses the right ones
@@ -237,6 +286,155 @@ function renderExercises() {
         <div class="play-icon">▶</div>
       </div>
     </div>`).join('');
+    
+  const trainingBtn = document.getElementById('training-workout-btn');
+  if (state.workoutCompleted) {
+    trainingBtn.textContent = "Séance terminée ✅";
+    trainingBtn.classList.add('btn-secondary');
+    trainingBtn.disabled = true;
+    trainingBtn.onclick = null;
+  } else {
+    trainingBtn.textContent = "▶ Démarrer la séance";
+    trainingBtn.classList.remove('btn-secondary');
+    trainingBtn.disabled = false;
+    trainingBtn.onclick = openLiveSession;
+  }
+}
+
+// ========== LIVE SESSION ==========
+let liveState = { active: false, exerciseIdx: 0, isRest: false, timeLeft: 0, interval: null };
+
+function openLiveSession() {
+  if (!window.currentDailyWorkout || window.currentDailyWorkout.length === 0) {
+    alert("Aucune séance n'est prête. Réessaie.");
+    return;
+  }
+  liveState = { active: true, exerciseIdx: 0, isRest: false, timeLeft: 0, interval: null };
+  document.getElementById('overlay-live').classList.remove('hidden');
+  updateLiveUI();
+}
+
+function closeLiveSession() {
+  clearInterval(liveState.interval);
+  document.getElementById('overlay-live').classList.add('hidden');
+  liveState.active = false;
+}
+
+function updateLiveUI() {
+  const ex = window.currentDailyWorkout[liveState.exerciseIdx];
+  document.getElementById('live-exercise-name').textContent = ex.name;
+  document.getElementById('live-exercise-icon').textContent = ex.icon;
+  
+  const actionBtn = document.getElementById('live-action-btn');
+  
+  if (liveState.isRest) {
+    document.getElementById('live-exercise-detail').textContent = "REPOS";
+    actionBtn.textContent = "Passer le repos";
+    startTimer(45); // 45s rest
+  } else {
+    document.getElementById('live-exercise-detail').textContent = ex.detail;
+    actionBtn.textContent = "Série terminée ✅";
+    document.getElementById('live-timer').textContent = "00:00";
+    clearInterval(liveState.interval);
+  }
+}
+
+function startTimer(seconds) {
+  liveState.timeLeft = seconds;
+  clearInterval(liveState.interval);
+  liveState.interval = setInterval(() => {
+    liveState.timeLeft--;
+    const m = Math.floor(liveState.timeLeft / 60);
+    const s = liveState.timeLeft % 60;
+    document.getElementById('live-timer').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    if (liveState.timeLeft <= 0) {
+      clearInterval(liveState.interval);
+      nextLiveStep();
+    }
+  }, 1000);
+}
+
+function nextLiveStep() {
+  if (liveState.isRest) {
+    liveState.isRest = false;
+    liveState.exerciseIdx++;
+    if (liveState.exerciseIdx >= window.currentDailyWorkout.length) {
+      finishSession();
+      return;
+    }
+  } else {
+    liveState.isRest = true;
+  }
+  updateLiveUI();
+}
+
+function finishSession() {
+  closeLiveSession();
+  state.workoutCompleted = true;
+  state.sessionsCompleted++;
+  localStorage.setItem('fc_workout_completed', 'true');
+  localStorage.setItem('fc_sessions', state.sessionsCompleted);
+  
+  // XP Gain
+  state.disciplineScore += 2;
+  if (state.disciplineScore > 100) state.disciplineScore = 100;
+  localStorage.setItem('fc_discipline', state.disciplineScore);
+  
+  updateDashboardWorkout();
+  renderExercises();
+  drawDisciplineArc();
+  
+  document.getElementById('overlay-share').classList.remove('hidden');
+  document.getElementById('share-workout-name').textContent = "Séance terminée !";
+}
+
+// ========== NUTRITION ==========
+let currentMealType = '';
+function openAddMeal(type) {
+  currentMealType = type;
+  document.getElementById('add-meal-title').textContent = `Ajouter un ${type}`;
+  document.getElementById('meal-name-input').value = '';
+  document.getElementById('meal-cal-input').value = '';
+  document.getElementById('meal-prot-input').value = '';
+  document.getElementById('meal-carb-input').value = '';
+  document.getElementById('meal-fat-input').value = '';
+  document.getElementById('modal-add-meal').classList.remove('hidden');
+}
+
+function saveMeal() {
+  const name = document.getElementById('meal-name-input').value;
+  const cal = parseInt(document.getElementById('meal-cal-input').value || 0);
+  const prot = parseInt(document.getElementById('meal-prot-input').value || 0);
+  const carb = parseInt(document.getElementById('meal-carb-input').value || 0);
+  const fat = parseInt(document.getElementById('meal-fat-input').value || 0);
+
+  if (!name) return alert("Donne un nom à ton repas !");
+
+  const meals = JSON.parse(localStorage.getItem('fc_logged_meals') || '[]');
+  meals.push({ type: currentMealType, name, cal, prot, carb, fat, date: new Date().toISOString() });
+  localStorage.setItem('fc_logged_meals', JSON.stringify(meals));
+
+  document.getElementById('modal-add-meal').classList.add('hidden');
+  alert(`Repas ${name} enregistré !`);
+  
+  // Update UI (simplified for demo)
+  updateNutritionUI();
+}
+
+function updateNutritionUI() {
+  const meals = JSON.parse(localStorage.getItem('fc_logged_meals') || '[]');
+  const today = new Date().toISOString().split('T')[0];
+  const todayMeals = meals.filter(m => m.date.startsWith(today));
+  
+  const total = todayMeals.reduce((acc, m) => ({
+    cal: acc.cal + m.cal,
+    prot: acc.prot + m.prot,
+    carb: acc.carb + m.carb,
+    fat: acc.fat + m.fat
+  }), { cal: 0, prot: 0, carb: 0, fat: 0 });
+
+  // Update Rings (this would require more IDs in index.html, let's keep it simple)
+  console.log("Total nutrition for today:", total);
 }
 
 // ========== CHAT ==========
@@ -247,8 +445,22 @@ function sendChat() {
   const box = document.getElementById('chat-messages');
   box.innerHTML += `<div class="chat-bubble user">${msg}<div class="chat-time" style="color:rgba(0,0,0,.5)">${new Date().toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'})}</div></div>`;
   inp.value = '';
+  
   setTimeout(() => {
-    const reply = coachReplies[Math.floor(Math.random() * coachReplies.length)];
+    let reply = "";
+    const lowerMsg = msg.toLowerCase();
+    
+    // Contextual Memory
+    if (lowerMsg.includes("fatigué") || lowerMsg.includes("fatigue")) {
+      reply = `Je vois que tu es fatigué, ${state.user.name.split(' ')[0]}. C'est normal à ce stade du programme (Jour ${state.day}). Est-ce que tu as bien dormi cette nuit ?`;
+    } else if (lowerMsg.includes("poids") || lowerMsg.includes("maigri")) {
+      reply = `Ton poids actuel est de ${state.weight[state.weight.length-1]} kg. Tu as perdu ${Math.abs(state.weight[0] - state.weight[state.weight.length-1]).toFixed(1)} kg depuis le début. Continue comme ça !`;
+    } else if (lowerMsg.includes("manger") || lowerMsg.includes("faim")) {
+      reply = "Pour ton objectif de " + state.user.goal.toLowerCase() + ", je te conseille de privilégier les protéines. Tu as encore de la marge sur tes macros aujourd'hui.";
+    } else {
+      reply = coachReplies[Math.floor(Math.random() * coachReplies.length)];
+    }
+
     box.innerHTML += `<div class="chat-bubble coach">${reply}<div class="chat-time">${new Date().toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'})}</div></div>`;
     box.scrollTop = box.scrollHeight;
   }, 800 + Math.random() * 800);

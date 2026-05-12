@@ -26,12 +26,23 @@ function generateFridgeRecipe() {
   btn.innerText = "L'IA cuisine... 🧠";
   
   setTimeout(() => {
+    const ingredients = inp.toLowerCase();
+    let recipe = { name: "Bowl Protéiné Improvisé", desc: "Un mélange équilibré avec ce que tu as sous la main.", p: "30g P", g: "40g G", l: "12g L" };
+    
+    if (ingredients.includes("poulet")) {
+      recipe = { name: "Poulet Sauté aux Légumes", desc: "Fais dorer le poulet avec tes légumes. Simple et efficace.", p: "45g P", g: "20g G", l: "10g L" };
+    } else if (ingredients.includes("oeuf") || ingredients.includes("œuf")) {
+      recipe = { name: "Omelette Gourmande", desc: "Une omelette riche en protéines avec tes ingrédients restants.", p: "32g P", g: "10g G", l: "22g L" };
+    } else if (ingredients.includes("saumon")) {
+      recipe = { name: "Saumon et Accompagnement", desc: "Le plein d'Oméga-3. Parfait pour la récupération.", p: "40g P", g: "30g G", l: "20g L" };
+    }
+
     document.getElementById('fridge-result').classList.remove('hidden');
-    document.getElementById('fridge-recipe-name').innerText = "Bowl Protéiné Improvisé";
-    document.getElementById('fridge-recipe-desc').innerText = `J'ai mixé ${inp}. Fais revenir le tout à la poêle avec un filet d'huile d'olive et des épices. Parfait pour ta prise de muscle !`;
-    document.getElementById('fridge-p').innerText = "42g P";
-    document.getElementById('fridge-g').innerText = "35g G";
-    document.getElementById('fridge-l').innerText = "12g L";
+    document.getElementById('fridge-recipe-name').innerText = recipe.name;
+    document.getElementById('fridge-recipe-desc').innerText = recipe.desc;
+    document.getElementById('fridge-p').innerText = recipe.p;
+    document.getElementById('fridge-g').innerText = recipe.g;
+    document.getElementById('fridge-l').innerText = recipe.l;
     btn.innerText = "Générer une autre recette";
   }, 1500);
 }
@@ -143,6 +154,18 @@ function startTinderNutrition() {
   currentTinderIdx = 0;
   updateTinderCard();
   document.getElementById('modal-tinder').classList.remove('hidden');
+  
+  const card = document.getElementById('tinder-card');
+  let startX = 0;
+  
+  card.ontouchstart = (e) => { startX = e.touches[0].clientX; };
+  card.ontouchend = (e) => {
+    const endX = e.changedTouches[0].clientX;
+    const diff = endX - startX;
+    if (Math.abs(diff) > 100) {
+      swipeTinder(diff > 0 ? 'right' : 'left');
+    }
+  };
 }
 
 function updateTinderCard() {
@@ -199,6 +222,51 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// 10. DROP ZONES (Real Leaflet Map)
+let leafMap = null;
+
+function initMap() {
+  document.getElementById('modal-map').classList.remove('hidden');
+  
+  if (leafMap) return; // Already initialized
+
+  // Wait for modal to be visible so size is correct
+  setTimeout(() => {
+    leafMap = L.map('map').setView([48.8566, 2.3522], 13); // Default to Paris
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(leafMap);
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        leafMap.setView([lat, lng], 15);
+        
+        L.marker([lat, lng]).addTo(leafMap)
+          .bindPopup('Tu es ici 📍')
+          .openPopup();
+
+        // Add a fake Drop Zone nearby
+        L.circle([lat + 0.002, lng + 0.002], {
+          color: 'red',
+          fillColor: '#f03',
+          fillOpacity: 0.5,
+          radius: 100
+        }).addTo(leafMap).bindPopup('<b>Drop Zone Secrète 🎁</b><br>Cours ici pour 1000 XP.');
+
+      }, () => {
+        alert("Géolocalisation refusée. Affichage par défaut.");
+      });
+    }
+  }, 300);
+}
+
+// Update the map trigger in overlays-v7.html (Wait, it's already connected to modal-map in index.html)
+// Actually, I need to make sure startRaidModal doesn't conflict. 
+// Let's re-wire the map button in index.html to initMap() instead of just showing modal.
+
 // 12. RAID MONDIAL (Live Multiplayer Event)
 let raidInterval;
 let raidGlobalProgress = 0;
@@ -247,9 +315,13 @@ function startRaidModal() {
 }
 
 function updateRaidUI() {
-  document.getElementById('raid-global-progress').innerText = formatNumber(raidGlobalProgress);
-  const pct = (raidGlobalProgress / raidGlobalTarget) * 100;
-  document.getElementById('raid-progress-bar').style.width = `${pct}%`;
+  const el = document.getElementById('raid-global-progress');
+  if (el) el.innerText = formatNumber(raidGlobalProgress);
+  const bar = document.getElementById('raid-progress-bar');
+  if (bar) {
+    const pct = (raidGlobalProgress / raidGlobalTarget) * 100;
+    bar.style.width = `${pct}%`;
+  }
 }
 
 function addRaidReps(amount) {
@@ -288,3 +360,4 @@ function celebrateRaid() {
     closeRaidModal();
   }, 1000);
 }
+
