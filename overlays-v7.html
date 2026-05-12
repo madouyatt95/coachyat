@@ -148,3 +148,44 @@
     <button class="btn btn-outline w-full mt-12" onclick="document.getElementById('modal-ecommerce').classList.add('hidden')">Pas besoin</button>
   </div>
 </div>
+
+<!-- 12. RAID MONDIAL -->
+<div id="modal-raid" class="modal-backdrop hidden" style="z-index: 600;">
+  <div class="modal-content" style="background: linear-gradient(180deg, #3a0013 0%, #0A0E1A 100%);">
+    <div class="modal-handle"></div>
+    <div class="flex justify-between items-center mb-16">
+      <div class="text-xs fw-800 text-white px-8 py-4" style="background:var(--red); border-radius:4px;"><span style="animation: pulse 1s infinite; display: inline-block;">🔴</span> LIVE</div>
+      <div class="text-xs fw-600 text-dim">Fin dans 1h 24m</div>
+    </div>
+    
+    <div class="text-center mb-24">
+      <div class="text-3xl fw-900 text-white mb-8" id="raid-title">1 MILLION DE POMPES</div>
+      <div class="text-sm fw-600 text-dim" id="raid-participants">14 203 Participants Actifs</div>
+    </div>
+    
+    <div class="card mb-20" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,0,85,0.3);">
+      <div class="flex justify-between items-end mb-8">
+        <div>
+          <div class="text-xs text-dim">Objectif Global</div>
+          <div class="text-xl fw-800 text-white" id="raid-global-progress" style="font-variant-numeric: tabular-nums;">0</div>
+        </div>
+        <div class="text-sm fw-700 text-dim" id="raid-global-target">/ 1 000 000</div>
+      </div>
+      <div class="xp-bar" style="background: rgba(255,255,255,0.1);"><div class="xp-bar-fill" id="raid-progress-bar" style="width: 0%; background: var(--red); box-shadow: 0 0 10px var(--red);"></div></div>
+    </div>
+    
+    <div class="flex items-center justify-between p-16 mb-24" style="background: rgba(255,255,255,0.05); border-radius: var(--radius-sm);">
+      <div>
+        <div class="text-xs text-dim">Ta contribution</div>
+        <div class="text-2xl fw-900 text-green" id="raid-local-progress">0</div>
+      </div>
+      <button class="btn btn-primary" style="background: var(--red); color: white; border: none; font-size: 16px; padding: 12px 24px; box-shadow: 0 4px 15px rgba(255,0,85,0.4);" onclick="addRaidReps(10)" id="raid-btn-add">CONTRIBUER (+10)</button>
+    </div>
+    
+    <div class="text-center text-xs text-dim mb-16">
+      "Seul on va plus vite, ensemble on va plus loin."
+    </div>
+    
+    <button class="btn btn-outline w-full" style="border-color: rgba(255,255,255,0.2); color: white;" onclick="closeRaidModal()">Quitter le Raid</button>
+  </div>
+</div>

@@ -198,3 +198,93 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 15000);
   }
 });
+
+// 12. RAID MONDIAL (Live Multiplayer Event)
+let raidInterval;
+let raidGlobalProgress = 0;
+let raidGlobalTarget = 1000000;
+let raidLocalProgress = 0;
+
+function formatNumber(num) {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+
+function startRaidModal() {
+  document.getElementById('modal-raid').classList.remove('hidden');
+  
+  // Randomize participants between 12,000 and 25,000
+  const participants = Math.floor(Math.random() * 13000) + 12000;
+  document.getElementById('raid-participants').innerText = `${formatNumber(participants)} Participants Actifs`;
+  
+  // Randomize challenge
+  const challenges = ["POMPES", "SQUATS", "BURPEES", "ABDOS"];
+  const currentChallenge = challenges[Math.floor(Math.random() * challenges.length)];
+  
+  // Dynamic Target based on participants (avg 50 reps per person)
+  raidGlobalTarget = participants * 50;
+  
+  // Fake current progress (e.g., 60% already done)
+  raidGlobalProgress = Math.floor(raidGlobalTarget * 0.6);
+  raidLocalProgress = 0;
+  
+  document.getElementById('raid-title').innerText = `${formatNumber(raidGlobalTarget)} ${currentChallenge}`;
+  document.getElementById('raid-global-target').innerText = `/ ${formatNumber(raidGlobalTarget)}`;
+  document.getElementById('raid-local-progress').innerText = raidLocalProgress;
+  
+  updateRaidUI();
+  
+  // Simulate other players adding reps (100 to 500 reps per second globally)
+  clearInterval(raidInterval);
+  raidInterval = setInterval(() => {
+    raidGlobalProgress += Math.floor(Math.random() * 400) + 100;
+    if (raidGlobalProgress >= raidGlobalTarget) {
+      raidGlobalProgress = raidGlobalTarget;
+      clearInterval(raidInterval);
+      celebrateRaid();
+    }
+    updateRaidUI();
+  }, 1000);
+}
+
+function updateRaidUI() {
+  document.getElementById('raid-global-progress').innerText = formatNumber(raidGlobalProgress);
+  const pct = (raidGlobalProgress / raidGlobalTarget) * 100;
+  document.getElementById('raid-progress-bar').style.width = `${pct}%`;
+}
+
+function addRaidReps(amount) {
+  if (raidGlobalProgress >= raidGlobalTarget) return;
+  
+  raidLocalProgress += amount;
+  raidGlobalProgress += amount;
+  
+  document.getElementById('raid-local-progress').innerText = raidLocalProgress;
+  updateRaidUI();
+  
+  // Visual feedback
+  const btn = document.getElementById('raid-btn-add');
+  btn.style.transform = 'scale(0.95)';
+  setTimeout(() => btn.style.transform = 'scale(1)', 100);
+  
+  if(navigator.vibrate) navigator.vibrate(20);
+}
+
+function closeRaidModal() {
+  document.getElementById('modal-raid').classList.add('hidden');
+  clearInterval(raidInterval);
+}
+
+function celebrateRaid() {
+  document.getElementById('raid-btn-add').style.display = 'none';
+  document.getElementById('raid-title').innerText = "VICTOIRE MONDIALE ! 🌍";
+  document.getElementById('raid-title').style.color = "var(--green)";
+  document.getElementById('raid-progress-bar').style.background = "var(--green)";
+  
+  if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]);
+  
+  // Confetti simulation using alert for simplicity
+  setTimeout(() => {
+    alert(`INCROYABLE ! La communauté a réussi l'objectif.\n\nTa contribution : ${raidLocalProgress} reps.\nTu gagnes 1000 XP !`);
+    closeRaidModal();
+  }, 1000);
+}
