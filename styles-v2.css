@@ -128,3 +128,38 @@
 .screen.slide-out{animation:slideOutLeft .3s ease}
 @keyframes slideInRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
 @keyframes slideOutLeft{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-30px)}}
+
+/* Video Thumbnail for Exercises */
+.video-thumbnail {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: url('images/workout-hero.png') center/cover;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--glass-border);
+}
+.video-thumbnail::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  border-radius: inherit;
+}
+.play-icon {
+  font-size: 14px;
+  color: #fff;
+  z-index: 1;
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(2px);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding-left: 2px; /* optical centering */
+}

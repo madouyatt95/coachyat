@@ -8,37 +8,41 @@ const state = {
 
 const exercises = [
   // Pectoraux / Triceps
-  {name:'Développé couché',detail:'4 séries x 8-10 reps',icon:'🏋️'},
-  {name:'Développé incliné',detail:'4 séries x 10 reps',icon:'💪'},
-  {name:'Écartés couché',detail:'3 séries x 12 reps',icon:'🦋'},
-  {name:'Pompes (Push-ups)',detail:'3 séries x Max',icon:'🔥'},
-  {name:'Dips',detail:'3 séries x 12 reps',icon:'⚡'},
-  {name:'Extensions Triceps',detail:'3 séries x 15 reps',icon:'💪'},
+  {name:'Développé couché',detail:'4 séries x 8-10 reps',icon:'🏋️',equip:'gym'},
+  {name:'Développé incliné',detail:'4 séries x 10 reps',icon:'💪',equip:'gym'},
+  {name:'Écartés couché',detail:'3 séries x 12 reps',icon:'🦋',equip:'dumbbells'},
+  {name:'Pompes (Push-ups)',detail:'3 séries x Max',icon:'🔥',equip:'none'},
+  {name:'Dips',detail:'3 séries x 12 reps',icon:'⚡',equip:'none'},
+  {name:'Extensions Triceps',detail:'3 séries x 15 reps',icon:'💪',equip:'dumbbells'},
   // Dos / Biceps
-  {name:'Tirage vertical',detail:'4 séries x 10 reps',icon:'🦍'},
-  {name:'Rowing barre',detail:'4 séries x 8 reps',icon:'🚣'},
-  {name:'Tractions (Pull-ups)',detail:'3 séries x Max',icon:'🧗'},
-  {name:'Tirage horizontal',detail:'3 séries x 12 reps',icon:'🛶'},
-  {name:'Curl Biceps barre',detail:'3 séries x 12 reps',icon:'💪'},
-  {name:'Curl marteau',detail:'3 séries x 15 reps',icon:'🔨'},
+  {name:'Tirage vertical',detail:'4 séries x 10 reps',icon:'🦍',equip:'gym'},
+  {name:'Rowing barre',detail:'4 séries x 8 reps',icon:'🚣',equip:'gym'},
+  {name:'Tractions (Pull-ups)',detail:'3 séries x Max',icon:'🧗',equip:'none'},
+  {name:'Tirage horizontal',detail:'3 séries x 12 reps',icon:'🛶',equip:'gym'},
+  {name:'Rowing haltères',detail:'3 séries x 12 reps',icon:'🚣',equip:'dumbbells'},
+  {name:'Curl Biceps barre',detail:'3 séries x 12 reps',icon:'💪',equip:'gym'},
+  {name:'Curl marteau',detail:'3 séries x 15 reps',icon:'🔨',equip:'dumbbells'},
   // Jambes
-  {name:'Squat barre',detail:'4 séries x 8 reps',icon:'🦵'},
-  {name:'Presse à cuisses',detail:'4 séries x 10 reps',icon:'🧱'},
-  {name:'Fentes marchées',detail:'3 séries x 20 pas',icon:'🚶‍♂️'},
-  {name:'Leg Extension',detail:'3 séries x 15 reps',icon:'🦵'},
-  {name:'Leg Curl',detail:'3 séries x 15 reps',icon:'🦵'},
-  {name:'Mollets debout',detail:'4 séries x 20 reps',icon:'🦶'},
+  {name:'Squat barre',detail:'4 séries x 8 reps',icon:'🦵',equip:'gym'},
+  {name:'Presse à cuisses',detail:'4 séries x 10 reps',icon:'🧱',equip:'gym'},
+  {name:'Goblet Squat',detail:'4 séries x 12 reps',icon:'🏋️',equip:'dumbbells'},
+  {name:'Fentes marchées',detail:'3 séries x 20 pas',icon:'🚶‍♂️',equip:'none'},
+  {name:'Leg Extension',detail:'3 séries x 15 reps',icon:'🦵',equip:'gym'},
+  {name:'Leg Curl',detail:'3 séries x 15 reps',icon:'🦵',equip:'gym'},
+  {name:'Mollets debout',detail:'4 séries x 20 reps',icon:'🦶',equip:'none'},
   // Épaules
-  {name:'Développé militaire',detail:'4 séries x 10 reps',icon:'🏋️'},
-  {name:'Élévations latérales',detail:'4 séries x 15 reps',icon:'🦅'},
-  {name:'Oiseau (Face pull)',detail:'3 séries x 15 reps',icon:'🦉'},
-  {name:'Shrugs',detail:'3 séries x 15 reps',icon:'🤷‍♂️'},
+  {name:'Développé militaire',detail:'4 séries x 10 reps',icon:'🏋️',equip:'gym'},
+  {name:'Développé haltères',detail:'4 séries x 10 reps',icon:'🏋️',equip:'dumbbells'},
+  {name:'Élévations latérales',detail:'4 séries x 15 reps',icon:'🦅',equip:'dumbbells'},
+  {name:'Oiseau (Face pull)',detail:'3 séries x 15 reps',icon:'🦉',equip:'gym'},
+  {name:'Shrugs',detail:'3 séries x 15 reps',icon:'🤷‍♂️',equip:'dumbbells'},
   // Core / Cardio
-  {name:'Gainage (Planche)',detail:'3 séries x 45 sec',icon:'🧱'},
-  {name:'Crunch poulie',detail:'3 séries x 15 reps',icon:'🍫'},
-  {name:'Jumping Jacks',detail:'Circuit 45 sec',icon:'🤸'},
-  {name:'Mountain Climbers',detail:'Circuit 45 sec',icon:'⛰️'},
-  {name:'Burpees',detail:'Circuit 45 sec',icon:'🤢'}
+  {name:'Gainage (Planche)',detail:'3 séries x 45 sec',icon:'🧱',equip:'none'},
+  {name:'Crunch poulie',detail:'3 séries x 15 reps',icon:'🍫',equip:'gym'},
+  {name:'Crunch au sol',detail:'3 séries x 20 reps',icon:'🍫',equip:'none'},
+  {name:'Jumping Jacks',detail:'Circuit 45 sec',icon:'🤸',equip:'none'},
+  {name:'Mountain Climbers',detail:'Circuit 45 sec',icon:'⛰️',equip:'none'},
+  {name:'Burpees',detail:'Circuit 45 sec',icon:'🤢',equip:'none'}
 ];
 
 const coachReplies = [
@@ -170,11 +174,29 @@ function closeOverlay(id) { document.getElementById(id).classList.add('hidden');
 // ========== EXERCISES ==========
 function renderExercises() {
   const el = document.getElementById('exercise-list');
-  el.innerHTML = exercises.map((e, i) => `
-    <div class="exercise-item">
+  let allowedEquip = ['none'];
+  const userEquip = state.user?.equipment || 'Maison (sans matériel)';
+  
+  if (userEquip === 'Maison (avec haltères)') allowedEquip = ['none', 'dumbbells'];
+  if (userEquip === 'Salle de sport') allowedEquip = ['none', 'dumbbells', 'gym'];
+
+  // Filter exercises
+  let filteredExercises = exercises.filter(e => allowedEquip.includes(e.equip));
+  
+  // Pick 5 random or first 5 for the daily workout to not show 30 items
+  // Simple randomization for demo
+  filteredExercises = filteredExercises.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+  // Store them so live workout uses the right ones
+  window.currentDailyWorkout = filteredExercises;
+
+  el.innerHTML = filteredExercises.map((e, i) => `
+    <div class="exercise-item" onclick="alert('Ouverture de la vidéo de démonstration pour : ${e.name}')">
       <div class="exercise-num">${i+1}</div>
       <div class="exercise-info"><div class="exercise-name">${e.name}</div><div class="exercise-detail">${e.detail}</div></div>
-      <div style="font-size:20px">${e.icon}</div>
+      <div class="video-thumbnail">
+        <div class="play-icon">▶</div>
+      </div>
     </div>`).join('');
 }
 
