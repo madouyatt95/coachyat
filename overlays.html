@@ -1,0 +1,49 @@
+<!-- V2 OVERLAYS -->
+<div id="splash" class="splash">
+  <div class="splash-logo">💪</div>
+  <div class="splash-title">FitCoach AI</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<div id="offline-badge" class="offline-badge">Mode hors-ligne</div>
+
+<div id="overlay-live" class="overlay-screen hidden" style="background:var(--bg-primary); z-index: 300;">
+  <div class="overlay-header">
+    <button class="overlay-close" onclick="closeLiveSession()">✕</button>
+    <div class="fw-600">Séance en cours</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="overlay-body live-session">
+    <div id="live-exercise-icon" style="font-size:64px; margin-top:20px;">🏋️</div>
+    <div id="live-exercise-name" class="live-exercise-name">Développé couché</div>
+    <div id="live-exercise-detail" class="live-exercise-detail">Série 1 / 4</div>
+    
+    <div id="live-timer" class="live-timer">00:00</div>
+    
+    <div id="live-sets" class="live-sets">
+      <!-- Sets will be injected here -->
+    </div>
+    
+    <div style="text-align:left; margin-top:30px;">
+      <div class="text-sm fw-600 mb-8">Difficulté ressentie (RPE)</div>
+      <input type="range" id="live-rpe" class="rpe-slider" min="1" max="5" step="1" value="3">
+      <div class="rpe-labels">
+        <span>Facile</span><span>Moyen</span><span>Extrême</span>
+      </div>
+    </div>
+    
+    <button id="live-action-btn" class="btn btn-primary mt-20" onclick="nextLiveStep()" style="height: 60px; font-size: 18px;">▶ Démarrer la série</button>
+  </div>
+</div>
+
+<div id="modal-weight" class="modal-backdrop hidden">
+  <div class="modal-content">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Mon Poids du Jour</div>
+    <div style="display:flex; align-items:center; gap:16px; margin-bottom: 24px;">
+      <input type="number" id="weight-input" class="onboarding-input" style="margin:0; font-size: 24px; text-align:center; height: 60px;" step="0.1" value="78.4">
+      <span class="text-xl fw-600">kg</span>
+    </div>
+    <button class="btn btn-primary" onclick="saveWeight()">Enregistrer</button>
+  </div>
+</div>

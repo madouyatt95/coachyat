@@ -1,0 +1,44 @@
+<!-- V4 OVERLAYS -->
+<div id="overlay-review" class="review-popup hidden">
+  <div class="review-card">
+    <div style="font-size: 40px; margin-bottom: 10px;">📊</div>
+    <div class="text-xl fw-800">Bilan de la Semaine</div>
+    <div class="text-sm text-dim mt-4">L'IA a analysé ta progression.</div>
+    
+    <div class="review-compare">
+      <div class="review-item">
+        <div class="val">18</div><div class="lbl">Séances</div>
+        <div class="diff diff-up">+2 vs Semaine 1</div>
+      </div>
+      <div class="review-item">
+        <div class="val">78.4</div><div class="lbl">Poids (kg)</div>
+        <div class="diff diff-down">-0.8 kg</div>
+      </div>
+    </div>
+    
+    <div style="background: var(--purple-dim); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--purple); margin: 16px 0; text-align: left;">
+      <div class="fw-700 text-purple text-sm mb-4">Adaptation IA 🧠</div>
+      <div class="text-xs" style="color: #fff;">J'ai augmenté l'intensité de tes séances cardio de 10% pour accélérer la perte de masse grasse.</div>
+    </div>
+    
+    <button class="btn btn-primary" onclick="document.getElementById('overlay-review').classList.add('hidden')">Compris, on y va !</button>
+  </div>
+</div>
+
+<div id="overlay-share" class="review-popup hidden">
+  <div class="review-card" style="padding: 0; overflow: hidden; background: transparent; box-shadow: none;">
+    <div id="share-card-content" class="share-card">
+      <div class="brand">FITCOACH AI</div>
+      <div class="text-2xl fw-900 mb-8">SÉANCE DÉTRUITE 🔥</div>
+      <div class="text-md text-dim mb-16" id="share-workout-name">Push Upper Body</div>
+      <div class="flex justify-between mt-20" style="gap: 10px;">
+        <div><div class="text-xl fw-800 text-green" id="share-time">45</div><div class="text-xs text-dim">MIN</div></div>
+        <div><div class="text-xl fw-800 text-orange" id="share-cal">320</div><div class="text-xs text-dim">KCAL</div></div>
+      </div>
+    </div>
+    <div style="background: var(--bg-card-solid); padding: 20px; border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
+      <button class="btn btn-primary" onclick="shareToSocial()">📸 Partager en Story</button>
+      <button class="btn btn-outline mt-12" onclick="document.getElementById('overlay-share').classList.add('hidden')">Fermer</button>
+    </div>
+  </div>
+</div>

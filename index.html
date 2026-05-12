@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="FitCoach AI - Votre coach fitness intelligent. Programme 90 jours adaptatif avec IA.">
+<title>FitCoach AI</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles-v2.css">
+</head>
+<body>
+
+<!-- ONBOARDING -->
+<div id="onboarding" class="onboarding-overlay">
+  <div class="onboarding-progress" id="onb-progress"></div>
+  <div class="onboarding-content" id="onb-content"></div>
+  <div class="onboarding-footer">
+    <button class="btn btn-primary" id="onb-next" onclick="nextOnboarding()">Continuer</button>
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <span>9:41</span>
+  <div class="status-bar-icons">
+    <svg width="16" height="12" fill="#fff"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4" y="1" width="3" height="11" rx="1"/><rect x="8" y="4" width="3" height="8" rx="1"/><rect x="12" y="0" width="3" height="12" rx="1"/></svg>
+    <svg width="16" height="12" fill="#fff"><path d="M1 4h14a1 1 0 011 1v6a1 1 0 01-1 1H1a1 1 0 01-1-1V5a1 1 0 011-1z"/></svg>
+  </div>
+</div>
+
+<!-- TODAY SCREEN -->
+<div id="screen-today" class="screen active">
+  <div class="flex justify-between items-center" style="padding:4px 0 12px">
+    <div>
+      <div class="text-sm text-dim">Jour <span id="day-count">12</span> / 90</div>
+      <div class="text-xl fw-800" style="margin-top:4px">On ne lâche rien 💪</div>
+      <div class="text-sm text-dim" style="margin-top:2px">Chaque jour te rapproche de ton meilleur toi.</div>
+    </div>
+    <div class="progress-ring" id="today-ring"></div>
+  </div>
+
+  <div class="xp-bar-container">
+    <div class="xp-info"><span>Niveau 12</span><span>450 / 1000 XP</span></div>
+    <div class="xp-bar"><div class="xp-bar-fill" style="width: 45%;"></div></div>
+  </div>
+
+  <div class="workout-hero" onclick="showScreen('screen-training')">
+    <img src="images/workout-hero.png" alt="Workout">
+    <div class="workout-hero-overlay">
+      <div class="text-xs text-dim" style="margin-bottom:4px">SÉANCE DU JOUR</div>
+      <div class="text-lg fw-700">Push Upper Body</div>
+      <div style="display:flex;gap:12px;margin-top:6px">
+        <span class="workout-hero-badge">🕐 45 min</span>
+        <span class="workout-hero-badge">⚡ Intermédiaire</span>
+      </div>
+      <div class="workout-hero-badge" style="margin-top:6px">🔥 320 kcal</div>
+    </div>
+  </div>
+  <button class="btn btn-primary mb-16" onclick="showScreen('screen-training')">▶ Commencer ma séance</button>
+
+  <div class="card">
+    <div class="flex justify-between items-center">
+      <div>
+        <div class="text-sm text-dim">Nutrition du jour</div>
+        <div class="text-lg fw-700" style="margin-top:2px">2 160 kcal</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <div class="progress-ring" id="nut-ring-p"></div>
+        <div class="progress-ring" id="nut-ring-g"></div>
+        <div class="progress-ring" id="nut-ring-l"></div>
+      </div>
+    </div>
+    <div class="text-xs text-dim" style="margin-top:8px">200g P · 220g G · 70g L</div>
+  </div>
+
+  <div class="card coach-message-card">
+    <div class="flex items-center gap-12 mb-8">
+      <div class="text-sm fw-600">Message du coach</div>
+      <div style="flex:1"></div>
+      <div style="display:flex;gap:2px">
+        <div style="width:3px;height:12px;background:var(--purple);border-radius:2px;animation:float 1s ease infinite"></div>
+        <div style="width:3px;height:18px;background:var(--green);border-radius:2px;animation:float 1s ease .2s infinite"></div>
+        <div style="width:3px;height:10px;background:var(--purple);border-radius:2px;animation:float 1s ease .4s infinite"></div>
+      </div>
+    </div>
+    <div class="text-sm" style="line-height:1.6">Tu as bien progressé cette semaine ! Reste focus, le résultat arrive. Je suis fier de toi. 🔥</div>
+  </div>
+
+  <div class="warmup-card" style="cursor:pointer" onclick="openQuickWorkout()">
+    <div class="warmup-icon">⚡</div>
+    <div>
+      <div class="text-sm fw-600">J'ai seulement 10 minutes</div>
+      <div class="text-xs text-dim">Séance rapide</div>
+    </div>
+    <div style="margin-left:auto;color:var(--text-tertiary)">›</div>
+  </div>
+</div>
+
+<!-- TRAINING SCREEN -->
+<div id="screen-training" class="screen">
+  <div class="screen-header">
+    <div class="screen-title">Entraînement</div>
+    <button class="btn-icon btn-secondary" style="width:36px;height:36px" onclick="openQuickWorkout()">⚡</button>
+  </div>
+  <div class="tabs mb-16">
+    <div class="tab active">Aujourd'hui</div>
+    <div class="tab">Semaine</div>
+    <div class="tab">Maison</div>
+    <div class="tab">Salle</div>
+  </div>
+  <div class="week-calendar">
+    <div class="cal-day done"><span class="cal-day-label">Lun</span><div class="cal-day-num">10</div></div>
+    <div class="cal-day done"><span class="cal-day-label">Mar</span><div class="cal-day-num">11</div></div>
+    <div class="cal-day today"><span class="cal-day-label">Mer</span><div class="cal-day-num">12</div></div>
+    <div class="cal-day"><span class="cal-day-label">Jeu</span><div class="cal-day-num">13</div></div>
+    <div class="cal-day"><span class="cal-day-label">Ven</span><div class="cal-day-num">14</div></div>
+    <div class="cal-day"><span class="cal-day-label">Sam</span><div class="cal-day-num">15</div></div>
+    <div class="cal-day"><span class="cal-day-label">Dim</span><div class="cal-day-num">16</div></div>
+  </div>
+  
+  <div class="section-title">Programme du jour</div>
+  <div class="card">
+    <div id="exercise-list"></div>
+  </div>
+  <button class="btn btn-primary mb-16">▶ Démarrer la séance</button>
+  <div class="warmup-card mb-16">
+    <div class="warmup-icon">🔥</div>
+    <div>
+      <div class="text-sm fw-600">Échauffement conseillé</div>
+      <div class="text-xs text-dim">5-7 min</div>
+    </div>
+    <div style="margin-left:auto;color:var(--text-tertiary)">›</div>
+  </div>
+</div>
+
+<!-- NUTRITION SCREEN -->
+<div id="screen-nutrition" class="screen">
+  <div class="screen-header">
+    <div class="screen-title">Nutrition</div>
+    <button class="btn-icon btn-secondary" style="width:36px;height:36px">⚙</button>
+  </div>
+  <div class="card" style="text-align:center">
+    <div class="text-sm text-dim">🔥 Objectif du jour</div>
+    <div class="text-2xl fw-800 mt-8">2 160 kcal</div>
+    <div class="nutrition-ring-container"><canvas id="nutrition-canvas" width="220" height="220"></canvas>
+      <div class="nutrition-center">
+        <div class="macro-value text-green" style="font-size:28px">200g</div>
+        <div class="text-xs text-dim">Protéines</div>
+      </div>
+    </div>
+    <div class="macro-badges">
+      <div class="macro-badge"><div class="macro-value" style="color:var(--green)">200g</div><div class="macro-label">Protéines</div></div>
+      <div class="macro-badge"><div class="macro-value" style="color:var(--orange)">220g</div><div class="macro-label">Glucides</div></div>
+      <div class="macro-badge"><div class="macro-value" style="color:var(--purple)">70g</div><div class="macro-label">Lipides</div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Repas de la journée</div>
+  
+  <div class="calorie-progress"><div class="calorie-progress-fill" style="width: 65%; background: var(--green);"></div></div>
+  
+  <div class="meal-slot" onclick="alert('Ajout Petit-déjeuner...')">
+    <div class="meal-slot-icon">🍳</div>
+    <div class="meal-slot-info">
+      <div class="meal-slot-name">Petit-déjeuner</div>
+      <div class="meal-slot-cal">450 kcal recommandées</div>
+    </div>
+    <div class="meal-slot-add">+</div>
+  </div>
+
+  <div class="meal-card" style="margin-bottom: 8px;">
+    <img src="images/meal-chicken.png" alt="Meal">
+    <div class="meal-info">
+      <div class="text-xs text-green fw-600 mb-4">Déjeuner (Loggé)</div>
+      <div class="fw-600">Poulet grillé & Riz complet</div>
+      <div class="text-sm text-dim mt-4">650 kcal</div>
+      <div class="meal-macros"><span class="meal-macro">45g P</span><span class="meal-macro">70g G</span><span class="meal-macro">18g L</span></div>
+    </div>
+  </div>
+
+  <div class="meal-slot" onclick="alert('Ajout Dîner...')">
+    <div class="meal-slot-icon">🥗</div>
+    <div class="meal-slot-info">
+      <div class="meal-slot-name">Dîner</div>
+      <div class="meal-slot-cal">550 kcal recommandées</div>
+    </div>
+    <div class="meal-slot-add">+</div>
+  </div>
+
+  <div class="section-title mt-16">Suggestions pour toi</div>
+  <div class="suggestion-grid">
+    <div class="suggestion-card"><img src="images/meal-salmon.png" alt=""><div class="info"><div class="name">Poulet riz légumes</div><div class="cal">580 kcal</div></div></div>
+    <div class="suggestion-card"><img src="images/meal-omelette.png" alt=""><div class="info"><div class="name">Omelette avocat tomate</div><div class="cal">560 kcal</div></div></div>
+  </div>
+</div>
+
+<!-- PROGRESSION SCREEN -->
+<div id="screen-progress" class="screen">
+  <div class="screen-header">
+    <div class="screen-title">Progression</div>
+  </div>
+  <div class="tabs mb-16">
+    <div class="tab active">Aperçu</div>
+    <div class="tab">Détails</div>
+    <div class="tab">Photos</div>
+  </div>
+
+  <div class="card">
+    <div class="flex justify-between items-center mb-8">
+      <div class="text-sm fw-600">Évolution du poids</div>
+      <div class="pill text-xs">30 jours ▾</div>
+    </div>
+    <div class="flex items-center gap-8">
+      <div class="text-3xl fw-900">78,4</div><div class="text-lg fw-400 text-dim">kg</div>
+    </div>
+    <div class="text-sm text-green mt-4">-4,2 kg depuis le début</div>
+    <div class="chart-container"><canvas id="weight-chart"></canvas></div>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <div class="text-sm fw-600 mb-12">Score de discipline</div>
+    <div class="discipline-score"><canvas id="discipline-canvas" width="160" height="160"></canvas>
+      <div class="discipline-value">
+        <div class="discipline-num">87</div>
+        <div class="discipline-max">/100</div>
+        <div class="discipline-label">Excellent</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-value">18</div><div class="stat-label">Séances terminées</div>
+      <div class="stat-sub text-green">18 / 20 cette semaine</div>
+      <div class="streak-bars"><div class="streak-bar filled"></div><div class="streak-bar filled"></div><div class="streak-bar filled"></div><div class="streak-bar filled"></div><div class="streak-bar partial"></div><div class="streak-bar"></div><div class="streak-bar"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value text-orange">12</div><div class="stat-label">Streak</div>
+      <div class="stat-sub">jours</div>
+      <div class="text-xs text-dim mt-8">Garde le feu 🔥</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div id="screen-profile" class="screen">
+  <div class="screen-header">
+    <div class="screen-title">Profil</div>
+    <div class="flex gap-8">
+      <button class="btn-icon btn-secondary" style="width:36px;height:36px">⚙</button>
+      <button class="btn-icon btn-secondary" style="width:36px;height:36px">🔔</button>
+    </div>
+  </div>
+  <div class="profile-header">
+    <div class="profile-avatar">👤</div>
+    <div>
+      <div class="profile-name" id="profile-name">Mamad</div>
+      <div class="profile-meta">Objectif : Perte de poids</div>
+      <div class="level-badge">⭐ Niveau 12</div>
+    </div>
+  </div>
+  <div class="section-title">Ton parcours</div>
+  <div class="profile-stats">
+    <div class="profile-stat"><div class="profile-stat-value">12</div><div class="profile-stat-label">Jour</div><div class="profile-stat-sub">/ 90</div><div style="margin-top:6px"><div style="height:4px;background:var(--glass);border-radius:2px"><div style="width:13%;height:100%;background:var(--green);border-radius:2px"></div></div><div class="text-xs text-dim" style="margin-top:4px">13%</div></div></div>
+    <div class="profile-stat"><div class="profile-stat-value">-12 kg</div><div class="profile-stat-label">Objectif</div><div class="profile-stat-sub">en 90 jours</div></div>
+  </div>
+
+  <div class="section-title mt-16">Paramètres</div>
+  <div class="menu-item"><div class="menu-item-left"><div class="menu-icon">📋</div><div class="menu-label">Informations personnelles</div></div><div class="menu-arrow">›</div></div>
+  <div class="menu-item"><div class="menu-item-left"><div class="menu-icon">🎯</div><div class="menu-label">Mes préférences</div></div><div class="menu-arrow">›</div></div>
+  <div class="menu-item"><div class="menu-item-left"><div class="menu-icon">🏋️</div><div class="menu-label">Matériel disponible</div></div><div class="menu-arrow">›</div></div>
+  <div class="menu-item"><div class="menu-item-left"><div class="menu-icon">🔔</div><div class="menu-label">Notifications</div></div><div class="menu-arrow">›</div></div>
+  <div class="menu-item"><div class="menu-item-left"><div class="menu-icon">❓</div><div class="menu-label">Aide & support</div></div><div class="menu-arrow">›</div></div>
+
+  <div class="card mt-16" style="cursor:pointer;border-color:var(--purple);background:var(--purple-dim)" onclick="openPaywall()">
+    <div class="flex items-center gap-12">
+      <div style="font-size:24px">👑</div>
+      <div><div class="fw-700">Passe à Premium</div><div class="text-sm text-dim">Débloque tout ton potentiel</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- COACH OVERLAY -->
+<div id="overlay-coach" class="overlay-screen hidden">
+  <div class="overlay-header">
+    <div class="chat-header" style="padding:0">
+      <button class="overlay-close" onclick="closeOverlay('overlay-coach')">←</button>
+      <div class="coach-avatar">🤖</div>
+      <div><div class="fw-600">Coach IA</div><div class="coach-status">● En ligne</div></div>
+    </div>
+    <div></div>
+  </div>
+  <div class="overlay-body chat-container" id="chat-messages">
+    <div class="chat-bubble coach">Salut Mamad ! 👋<br>Comment te sens-tu aujourd'hui ?<div class="chat-time">09:41</div></div>
+  </div>
+  <div class="chat-input-bar" style="bottom:0">
+    <input class="chat-input" id="chat-input" placeholder="Écris ton message..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<!-- QUICK WORKOUT OVERLAY -->
+<div id="overlay-quick" class="overlay-screen hidden">
+  <div class="overlay-header">
+    <button class="overlay-close" onclick="closeOverlay('overlay-quick')">✕</button>
+    <div class="fw-600">Séance rapide</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="overlay-body quick-workout-screen">
+    <div class="text-xl fw-800">Tu as 10 minutes ?</div>
+    <div class="text-md text-dim mt-4">Parfait, on y va ! 🌟</div>
+    <div class="text-sm text-dim">Séance efficace, zéro excuse.</div>
+    <div class="timer-display"><div class="timer-value">10:00</div><div class="timer-label">MINUTES</div></div>
+    <div class="text-lg fw-700" style="text-align:left">Circuit Full Body</div>
+    <div class="quick-exercise-list">
+      <div class="quick-exercise"><span class="quick-exercise-name">Jumping Jacks</span><span class="quick-exercise-dur">45 sec</span></div>
+      <div class="quick-exercise"><span class="quick-exercise-name">Pompes</span><span class="quick-exercise-dur">45 sec</span></div>
+      <div class="quick-exercise"><span class="quick-exercise-name">Squats</span><span class="quick-exercise-dur">45 sec</span></div>
+      <div class="quick-exercise"><span class="quick-exercise-name">Gainage</span><span class="quick-exercise-dur">45 sec</span></div>
+      <div class="quick-exercise"><span class="quick-exercise-name">Mountain Climbers</span><span class="quick-exercise-dur">45 sec</span></div>
+    </div>
+    <button class="btn btn-primary mt-20">▶ Commencer</button>
+  </div>
+</div>
+
+<!-- PAYWALL OVERLAY -->
+<div id="overlay-paywall" class="overlay-screen hidden">
+  <div class="overlay-header">
+    <div></div>
+    <div class="fw-600">Choisis ton plan</div>
+    <button class="overlay-close" onclick="closeOverlay('overlay-paywall')">✕</button>
+  </div>
+  <div class="overlay-body paywall-screen">
+    <div class="paywall-toggle">
+      <button class="paywall-toggle-btn active">Mensuel</button>
+      <button class="paywall-toggle-btn">Annuel <span class="paywall-save">-20%</span></button>
+    </div>
+    <div class="plan-card pro">
+      <div class="plan-name" style="color:var(--purple)">🚀 PRO</div>
+      <div class="plan-price">19,99 €/mois</div>
+      <div class="plan-features">
+        <div class="plan-feature"><span class="check">✓</span> Tout de Premium</div>
+        <div class="plan-feature"><span class="check">✓</span> Adaptation en temps réel</div>
+        <div class="plan-feature"><span class="check">✓</span> Mémoire IA avancée</div>
+        <div class="plan-feature"><span class="check">✓</span> Analyse comportementale</div>
+        <div class="plan-feature"><span class="check">✓</span> Priorité IA</div>
+      </div>
+      <button class="btn btn-purple">Choisir PRO</button>
+    </div>
+    <div class="plan-card premium"><div class="plan-badge">Meilleur choix</div>
+      <div class="plan-name text-green">💎 PREMIUM</div>
+      <div class="plan-price">9,99 €/mois</div>
+      <div class="plan-features">
+        <div class="plan-feature"><span class="check">✓</span> Coach IA complet</div>
+        <div class="plan-feature"><span class="check">✓</span> AI Daily Plan complet</div>
+        <div class="plan-feature"><span class="check">✓</span> Adaptation hebdomadaire</div>
+        <div class="plan-feature"><span class="check">✓</span> Nutrition automatique</div>
+        <div class="plan-feature"><span class="check">✓</span> Score discipline avancé</div>
+        <div class="plan-feature"><span class="check">✓</span> Quick workout & Mode urgence</div>
+      </div>
+      <button class="btn btn-primary">Choisir PREMIUM</button>
+    </div>
+    <div class="plan-card free">
+      <div class="plan-name">🆓 FREE<span class="text-sm fw-400 text-dim" style="margin-left:auto">0 €/mois</span></div>
+      <div class="plan-features">
+        <div class="plan-feature"><span class="check">✓</span> 3 jours de programme</div>
+        <div class="plan-feature"><span class="check">✓</span> AI Daily Plan simplifié</div>
+        <div class="plan-feature"><span class="check">✓</span> Tracking basique</div>
+        <div class="plan-feature"><span class="check">✓</span> Score discipline</div>
+      </div>
+      <button class="btn btn-outline">Continuer gratuitement</button>
+    </div>
+    <div class="text-xs text-dim" style="text-align:center;margin-top:12px">Annule à tout moment.</div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="showScreen('screen-today')"><span class="nav-icon">🏠</span>Aujourd'hui</button>
+  <button class="nav-item" onclick="showScreen('screen-training')"><span class="nav-icon">🏋️</span>Entraînement</button>
+  <button class="nav-item" onclick="showScreen('screen-nutrition')"><span class="nav-icon">🥗</span>Nutrition</button>
+  <button class="nav-item" onclick="showScreen('screen-progress')"><span class="nav-icon">📊</span>Progression</button>
+  <button class="nav-item" onclick="showScreen('screen-profile')"><span class="nav-icon">👤</span>Profil</button>
+</nav>
+
+<!-- FAB Coach -->
+<button id="fab-coach" style="position:fixed;bottom:100px;right:max(calc(50% - 195px),16px);width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--cyan));border:none;font-size:24px;cursor:pointer;z-index:90;box-shadow:0 4px 20px rgba(182,255,59,.3);animation:float 3s ease infinite" onclick="openCoach()">🤖</button>
+
+<!-- V2 OVERLAYS -->
+<div id="splash" class="splash">
+  <div class="splash-logo">💪</div>
+  <div class="splash-title">FitCoach AI</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<div id="offline-badge" class="offline-badge">Mode hors-ligne</div>
+
+<div id="overlay-live" class="overlay-screen hidden" style="background:var(--bg-primary); z-index: 300;">
+  <div class="overlay-header">
+    <button class="overlay-close" onclick="closeLiveSession()">✕</button>
+    <div class="fw-600">Séance en cours</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="overlay-body live-session">
+    <div id="live-exercise-icon" style="font-size:64px; margin-top:20px;">🏋️</div>
+    <div id="live-exercise-name" class="live-exercise-name">Développé couché</div>
+    <div id="live-exercise-detail" class="live-exercise-detail">Série 1 / 4</div>
+    
+    <div id="live-timer" class="live-timer">00:00</div>
+    
+    <div id="live-sets" class="live-sets">
+      <!-- Sets will be injected here -->
+    </div>
+    
+    <div style="text-align:left; margin-top:30px;">
+      <div class="text-sm fw-600 mb-8">Difficulté ressentie (RPE)</div>
+      <input type="range" id="live-rpe" class="rpe-slider" min="1" max="5" step="1" value="3">
+      <div class="rpe-labels">
+        <span>Facile</span><span>Moyen</span><span>Extrême</span>
+      </div>
+    </div>
+    
+    <button id="live-action-btn" class="btn btn-primary mt-20" onclick="nextLiveStep()" style="height: 60px; font-size: 18px;">▶ Démarrer la série</button>
+  </div>
+</div>
+
+<div id="modal-weight" class="modal-backdrop hidden">
+  <div class="modal-content">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Mon Poids du Jour</div>
+    <div style="display:flex; align-items:center; gap:16px; margin-bottom: 24px;">
+      <input type="number" id="weight-input" class="onboarding-input" style="margin:0; font-size: 24px; text-align:center; height: 60px;" step="0.1" value="78.4">
+      <span class="text-xl fw-600">kg</span>
+    </div>
+    <button class="btn btn-primary" onclick="saveWeight()">Enregistrer</button>
+  </div>
+</div>
+
+<!-- V4 OVERLAYS -->
+<div id="overlay-review" class="review-popup hidden">
+  <div class="review-card">
+    <div style="font-size: 40px; margin-bottom: 10px;">📊</div>
+    <div class="text-xl fw-800">Bilan de la Semaine</div>
+    <div class="text-sm text-dim mt-4">L'IA a analysé ta progression.</div>
+    
+    <div class="review-compare">
+      <div class="review-item">
+        <div class="val">18</div><div class="lbl">Séances</div>
+        <div class="diff diff-up">+2 vs Semaine 1</div>
+      </div>
+      <div class="review-item">
+        <div class="val">78.4</div><div class="lbl">Poids (kg)</div>
+        <div class="diff diff-down">-0.8 kg</div>
+      </div>
+    </div>
+    
+    <div style="background: var(--purple-dim); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--purple); margin: 16px 0; text-align: left;">
+      <div class="fw-700 text-purple text-sm mb-4">Adaptation IA 🧠</div>
+      <div class="text-xs" style="color: #fff;">J'ai augmenté l'intensité de tes séances cardio de 10% pour accélérer la perte de masse grasse.</div>
+    </div>
+    
+    <button class="btn btn-primary" onclick="document.getElementById('overlay-review').classList.add('hidden')">Compris, on y va !</button>
+  </div>
+</div>
+
+<div id="overlay-share" class="review-popup hidden">
+  <div class="review-card" style="padding: 0; overflow: hidden; background: transparent; box-shadow: none;">
+    <div id="share-card-content" class="share-card">
+      <div class="brand">FITCOACH AI</div>
+      <div class="text-2xl fw-900 mb-8">SÉANCE DÉTRUITE 🔥</div>
+      <div class="text-md text-dim mb-16" id="share-workout-name">Push Upper Body</div>
+      <div class="flex justify-between mt-20" style="gap: 10px;">
+        <div><div class="text-xl fw-800 text-green" id="share-time">45</div><div class="text-xs text-dim">MIN</div></div>
+        <div><div class="text-xl fw-800 text-orange" id="share-cal">320</div><div class="text-xs text-dim">KCAL</div></div>
+      </div>
+    </div>
+    <div style="background: var(--bg-card-solid); padding: 20px; border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
+      <button class="btn btn-primary" onclick="shareToSocial()">📸 Partager en Story</button>
+      <button class="btn btn-outline mt-12" onclick="document.getElementById('overlay-share').classList.add('hidden')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script src="app-v2.js"></script>
+<script src="app-v3.js"></script>
+<script src="app-v4.js"></script>
+<script src="app-v5.js"></script>
+</body>
+</html>
