@@ -131,28 +131,6 @@ function drawCertificate() {
   ctx.stroke();
 }
 
-// 7. IA TEMPO (Spotify Sync)
-let isSpotifySynced = false;
-function toggleSpotifySync() {
-  const btn = document.getElementById('btn-spotify');
-  isSpotifySynced = !isSpotifySynced;
-  if(isSpotifySynced) {
-    btn.style.background = "#1DB954";
-    btn.style.color = "#000";
-    btn.innerText = "Spotify Synced 🎵";
-    alert("Connecté à Spotify ! Le timer de la séance pulsera désormais sur les BPM de ta musique.");
-    // Simulate pulsing timer
-    const timer = document.getElementById('live-timer');
-    if(timer) timer.style.animation = "pulse 0.5s infinite"; // fast tempo
-  } else {
-    btn.style.background = "transparent";
-    btn.style.color = "#1DB954";
-    btn.innerText = "🎵 Spotify Sync";
-    const timer = document.getElementById('live-timer');
-    if(timer) timer.style.animation = "";
-  }
-}
-
 // 8. TINDER NUTRITION
 let tinderMeals = [
   {n: "Poulet & Patate Douce", c: "620 kcal", p: "50g Protéines", img: "images/meal-chicken.png"},
