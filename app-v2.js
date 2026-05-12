@@ -1,48 +1,7 @@
 // V2 Logic for FitCoach AI
 
-// 11. Splash Screen COACHYAT (Robust Version)
-function handleSplash() {
-  const splash = document.getElementById('splash');
-  const bar = document.getElementById('splash-progress');
-  const pct = document.getElementById('splash-pct');
-  
-  if (!splash) return;
+// 11. Splash Screen logic moved to index.html for reliability
 
-  // Safety Timeout: Hide after 5s no matter what
-  const safetyTimeout = setTimeout(() => {
-    splash.classList.add('hide');
-    console.warn("Splash screen hidden by safety timeout.");
-  }, 5000);
-
-  if (!bar || !pct) {
-    splash.classList.add('hide');
-    clearTimeout(safetyTimeout);
-    return;
-  }
-
-  let progress = 0;
-  const interval = setInterval(() => {
-    progress += Math.floor(Math.random() * 15) + 5;
-    if (progress > 100) progress = 100;
-    
-    bar.style.width = `${progress}%`;
-    pct.innerText = `${progress}%`;
-    
-    if (progress === 100) {
-      clearInterval(interval);
-      clearTimeout(safetyTimeout);
-      setTimeout(() => {
-        splash.classList.add('hide');
-      }, 500);
-    }
-  }, 100);
-}
-
-if (document.readyState === 'loading') {
-  window.addEventListener('load', handleSplash);
-} else {
-  handleSplash();
-}
 
 // 17. Offline Handling
 window.addEventListener('online', updateOnlineStatus);

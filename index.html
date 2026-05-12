@@ -447,6 +447,35 @@
   </div>
 </div>
 
+<script>
+  (function() {
+    const s = document.getElementById('splash');
+    const b = document.getElementById('splash-progress');
+    const p = document.getElementById('splash-pct');
+    if (!s) return;
+    
+    // Safety Force Hide after 6s
+    setTimeout(() => { if(s) s.classList.add('hide'); }, 6000);
+
+    if (!b || !p) {
+      setTimeout(() => s.classList.add('hide'), 500);
+      return;
+    }
+
+    let prg = 0;
+    const iv = setInterval(() => {
+      prg += Math.floor(Math.random() * 20) + 5;
+      if (prg > 100) prg = 100;
+      b.style.width = prg + '%';
+      p.innerText = prg + '%';
+      if (prg >= 100) {
+        clearInterval(iv);
+        setTimeout(() => s.classList.add('hide'), 400);
+      }
+    }, 80);
+  })();
+</script>
+
 <div id="offline-badge" class="offline-badge">Mode hors-ligne</div>
 
 <div id="overlay-live" class="overlay-screen hidden" style="background:var(--bg-primary); z-index: 300;">
