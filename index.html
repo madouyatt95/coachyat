@@ -694,13 +694,21 @@
 <script src="app-v6.js"></script>
 <script src="tfjs-movenet.js"></script>
 
-<!-- LOAD V7 OVERLAYS -->
+<!-- LOAD V7 OVERLAYS (Safe) -->
 <script>
-  fetch('overlays-v7.html')
-    .then(response => response.text())
-    .then(data => {
-      document.body.insertAdjacentHTML('beforeend', data);
-    });
+  if (window.fetch) {
+    fetch('overlays-v7.html')
+      .then(response => {
+        if (!response.ok) throw new Error("Fetch failed");
+        return response.text();
+      })
+      .then(data => {
+        document.body.insertAdjacentHTML('beforeend', data);
+      })
+      .catch(err => {
+        console.warn("Could not load V7 overlays:", err);
+      });
+  }
 </script>
 <script src="app-v7.js"></script>
 

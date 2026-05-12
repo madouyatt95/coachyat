@@ -1,12 +1,20 @@
-// ========== STATE ==========
+// ========== STATE (Secure) ==========
+function getStorage(key, def) {
+  try {
+    const val = localStorage.getItem(key);
+    if (val === null) return def;
+    try { return JSON.parse(val); } catch(e) { return val; }
+  } catch(e) { return def; }
+}
+
 const state = {
-  user: JSON.parse(localStorage.getItem('fc_user') || 'null'),
-  day: parseInt(localStorage.getItem('fc_day') || '12'),
-  streak: parseInt(localStorage.getItem('fc_streak') || '12'),
-  disciplineScore: parseInt(localStorage.getItem('fc_discipline') || '87'),
-  workoutCompleted: localStorage.getItem('fc_workout_completed') === 'true',
-  weight: JSON.parse(localStorage.getItem('fc_weight') || '[82.6,82.1,81.5,81.0,80.5,80.2,79.8,79.5,79.2,79.0,78.7,78.4]'),
-  sessionsCompleted: parseInt(localStorage.getItem('fc_sessions') || '18'),
+  user: getStorage('fc_user', null),
+  day: parseInt(getStorage('fc_day', '12')),
+  streak: parseInt(getStorage('fc_streak', '12')),
+  disciplineScore: parseInt(getStorage('fc_discipline', '87')),
+  workoutCompleted: getStorage('fc_workout_completed', 'false') === 'true',
+  weight: getStorage('fc_weight', [82.6,82.1,81.5,81.0,80.5,80.2,79.8,79.5,79.2,79.0,78.7,78.4]),
+  sessionsCompleted: parseInt(getStorage('fc_sessions', '18')),
   sessionsTarget: 20
 };
 
@@ -87,8 +95,17 @@ let onbStep = 0, onbData = {};
 
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
-  if (!state.user) { renderOnboarding(); }
-  else { document.getElementById('onboarding').classList.add('hidden'); initApp(); }
+  try {
+    if (!state.user) { 
+      renderOnboarding(); 
+    } else { 
+      const onb = document.getElementById('onboarding');
+      if (onb) onb.classList.add('hidden'); 
+      initApp(); 
+    }
+  } catch (e) {
+    console.error("App initialization error:", e);
+  }
 });
 
 function initApp() {
