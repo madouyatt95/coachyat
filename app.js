@@ -158,6 +158,55 @@ function initApp() {
   drawDisciplineArc();
   drawWeightChart();
   updateProfileUI();
+  renderTrainingCalendar();
+}
+
+let viewedDay = state.day;
+
+function renderTrainingCalendar() {
+  const container = document.querySelector('.week-calendar');
+  if (!container) return;
+  
+  const days = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  let html = '';
+  
+  // Show a range of 7 days around the current state.day
+  for (let i = state.day - 3; i <= state.day + 3; i++) {
+    if (i < 1) continue;
+    const date = new Date();
+    date.setDate(date.getDate() + (i - state.day));
+    const dayLabel = days[date.getDay()];
+    
+    let cls = 'cal-day';
+    if (i < state.day) cls += ' done';
+    if (i === state.day) cls += ' today';
+    if (i === viewedDay) cls += ' active';
+    
+    html += `
+      <div class="${cls}" onclick="changeViewedDay(${i})">
+        <span class="cal-day-label">${dayLabel}</span>
+        <div class="cal-day-num">${i}</div>
+      </div>
+    `;
+  }
+  container.innerHTML = html;
+}
+
+function changeViewedDay(day) {
+  viewedDay = day;
+  renderTrainingCalendar();
+  renderExercises();
+  
+  const title = document.querySelector('#screen-training .section-title');
+  const btn = document.getElementById('training-workout-btn');
+  
+  if (day === state.day) {
+    title.textContent = "Programme du jour";
+    btn.style.display = 'block';
+  } else {
+    title.textContent = `Programme du Jour ${day}`;
+    btn.style.display = 'none'; // Only allow starting today's session
+  }
 }
 
 function updateProfileUI() {
@@ -407,41 +456,55 @@ function playVideo(name) {
 
 function renderExercises() {
   const el = document.getElementById('exercise-list');
+  if (!el) return;
+  
+  // Determine routine based on viewedDay (Modulo 4)
+  const routineIdx = (viewedDay - 1) % 4;
+  const routineNames = ["PUSH (Pectoraux/Triceps)", "LEGS (Jambes)", "PULL (Dos/Biceps)", "CORE & CARDIO"];
+  
   let allowedEquip = ['none'];
   const userEquip = state.user?.equipment || 'Maison (sans matériel)';
-  
   if (userEquip === 'Maison (avec haltères)') allowedEquip = ['none', 'dumbbells'];
   if (userEquip === 'Salle de sport') allowedEquip = ['none', 'dumbbells', 'gym'];
 
-  // Filter exercises
-  let filteredExercises = exercises.filter(e => allowedEquip.includes(e.equip));
-  
-  // Simple randomization for demo, but we should make it consistent for the day
-  filteredExercises = filteredExercises.sort(() => 0.5 - Math.random()).slice(0, 5);
+  // Filter exercises based on routine and equipment
+  let filtered = [];
+  if (routineIdx === 0) filtered = exercises.filter(e => ['Développé couché','Développé incliné','Pompes (Push-ups)','Dips','Extensions Triceps'].includes(e.name));
+  else if (routineIdx === 1) filtered = exercises.filter(e => ['Squat barre','Presse à cuisses','Fentes marchées','Leg Extension','Mollets debout'].includes(e.name));
+  else if (routineIdx === 2) filtered = exercises.filter(e => ['Tirage vertical','Rowing barre','Tractions (Pull-ups)','Curl Biceps barre','Curl marteau'].includes(e.name));
+  else filtered = exercises.filter(e => ['Gainage (Planche)','Crunch poulie','Jumping Jacks','Mountain Climbers','Burpees'].includes(e.name));
 
-  // Store them so live workout uses the right ones
-  window.currentDailyWorkout = filteredExercises;
+  // Further filter by equipment
+  filtered = filtered.filter(e => allowedEquip.includes(e.equip));
 
-  el.innerHTML = filteredExercises.map((e, i) => `
-    <div class="exercise-item" onclick="playVideo('${e.name.replace(/'/g, "\\'")}')">
-      <div class="exercise-num">${i+1}</div>
-      <div class="exercise-info"><div class="exercise-name">${e.name}</div><div class="exercise-detail">${e.detail}</div></div>
-      <div class="video-thumbnail">
-        <div class="play-icon">▶</div>
-      </div>
-    </div>`).join('');
+  // Store them for live session
+  if (viewedDay === state.day) window.currentDailyWorkout = filtered;
+
+  el.innerHTML = `
+    <div class="fw-700 text-sm text-green mb-12">${routineNames[routineIdx]}</div>
+    ${filtered.map((e, i) => `
+      <div class="exercise-item" onclick="playVideo('${e.name.replace(/'/g, "\\'")}')">
+        <div class="exercise-num">${i+1}</div>
+        <div class="exercise-info"><div class="exercise-name">${e.name}</div><div class="exercise-detail">${e.detail}</div></div>
+        <div class="video-thumbnail">
+          <div class="play-icon">▶</div>
+        </div>
+      </div>`).join('')}
+  `;
     
   const trainingBtn = document.getElementById('training-workout-btn');
-  if (state.workoutCompleted) {
+  if (!trainingBtn) return;
+  
+  if (state.workoutCompleted && viewedDay === state.day) {
     trainingBtn.textContent = "Séance terminée ✅";
     trainingBtn.classList.add('btn-secondary');
     trainingBtn.disabled = true;
     trainingBtn.onclick = null;
   } else {
-    trainingBtn.textContent = "▶ Démarrer la séance";
-    trainingBtn.classList.remove('btn-secondary');
-    trainingBtn.disabled = false;
-    trainingBtn.onclick = openLiveSession;
+    trainingBtn.textContent = viewedDay === state.day ? "▶ Démarrer la séance" : "Aperçu de la séance";
+    trainingBtn.classList.toggle('btn-secondary', viewedDay !== state.day);
+    trainingBtn.disabled = viewedDay !== state.day;
+    trainingBtn.onclick = viewedDay === state.day ? openLiveSession : null;
   }
 }
 
