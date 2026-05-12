@@ -127,8 +127,35 @@ function renderOnboarding() {
     });
   }
   html += '</div>';
+  
+  // Add developer fast-track buttons on step 0
+  if (onbStep === 0) {
+    html += `
+    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--glass-border);">
+      <div class="text-xs text-dim mb-8" style="text-align:center;">MODE DÉVELOPPEUR : CONNEXION RAPIDE</div>
+      <button class="btn btn-outline w-full mb-8" style="font-size:12px; padding: 8px;" onclick="demoLogin('Maison (sans matériel)')">Démo Sans Matériel</button>
+      <button class="btn btn-outline w-full mb-8" style="font-size:12px; padding: 8px;" onclick="demoLogin('Maison (avec haltères)')">Démo Avec Haltères</button>
+      <button class="btn btn-outline w-full" style="font-size:12px; padding: 8px;" onclick="demoLogin('Salle de sport')">Démo Salle de Sport</button>
+    </div>`;
+  }
+  
   c.innerHTML = html;
   document.getElementById('onb-next').textContent = onbStep === onboardingSteps.length - 1 ? 'Commencer 🚀' : 'Continuer';
+}
+
+function demoLogin(equip) {
+  onbData = {
+    goal: "Perte de poids",
+    level: "Intermédiaire",
+    name: "Mamadou (Test)",
+    age: "28",
+    height: "180",
+    weight: "85",
+    frequency: "3 fois/semaine",
+    equipment: equip,
+    motivation: "Élevée"
+  };
+  finishOnboarding();
 }
 
 function selectOption(key, val, el) {
@@ -172,6 +199,11 @@ function openPaywall() { document.getElementById('overlay-paywall').classList.re
 function closeOverlay(id) { document.getElementById(id).classList.add('hidden'); document.getElementById('fab-coach').style.display=''; }
 
 // ========== EXERCISES ==========
+function playVideo(name) {
+  document.getElementById('video-title').innerText = name;
+  document.getElementById('modal-video').classList.remove('hidden');
+}
+
 function renderExercises() {
   const el = document.getElementById('exercise-list');
   let allowedEquip = ['none'];
@@ -191,7 +223,7 @@ function renderExercises() {
   window.currentDailyWorkout = filteredExercises;
 
   el.innerHTML = filteredExercises.map((e, i) => `
-    <div class="exercise-item" onclick="alert('Ouverture de la vidéo de démonstration pour : ${e.name}')">
+    <div class="exercise-item" onclick="playVideo('${e.name.replace(/'/g, "\\'")}')">
       <div class="exercise-num">${i+1}</div>
       <div class="exercise-info"><div class="exercise-name">${e.name}</div><div class="exercise-detail">${e.detail}</div></div>
       <div class="video-thumbnail">

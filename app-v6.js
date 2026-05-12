@@ -60,8 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="text-xs text-dim">Objectif: 2.5L</div>
         </div>
         <div class="flex items-center gap-12">
-          <div class="text-xl fw-800 text-cyan" id="water-count">0 L</div>
-          <button class="btn btn-outline" style="padding: 8px 12px; border-radius: 50%;" id="btn-add-water">+</button>
+          <div class="text-xl fw-800 text-cyan" id="water-count" style="min-width: 60px; text-align: right;">0 L</div>
+          <button class="btn btn-outline" style="padding: 8px 14px; border-radius: var(--radius-sm);" id="btn-sub-water">-</button>
+          <button class="btn btn-outline" style="padding: 8px 14px; border-radius: var(--radius-sm);" id="btn-add-water">+</button>
         </div>
       </div>
       <div class="xp-bar-container mt-12">
@@ -73,13 +74,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hero) hero.after(hydroWidget);
 
     let currentWater = 0;
+    
+    const updateWaterUI = () => {
+      document.getElementById('water-count').innerText = `${currentWater.toFixed(2)} L`;
+      document.getElementById('water-bar').style.width = `${(currentWater / 2.5) * 100}%`;
+    };
+
     document.getElementById('btn-add-water').addEventListener('click', () => {
       currentWater += 0.25;
       if (currentWater > 2.5) currentWater = 2.5;
-      document.getElementById('water-count').innerText = `${currentWater.toFixed(2)} L`;
-      document.getElementById('water-bar').style.width = `${(currentWater / 2.5) * 100}%`;
-      // Haptic
+      updateWaterUI();
       if (navigator.vibrate) navigator.vibrate(20);
+    });
+    
+    document.getElementById('btn-sub-water').addEventListener('click', () => {
+      currentWater -= 0.25;
+      if (currentWater < 0) currentWater = 0;
+      updateWaterUI();
+      if (navigator.vibrate) navigator.vibrate(10);
     });
   }
 

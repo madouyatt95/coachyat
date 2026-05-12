@@ -458,6 +458,25 @@
   </div>
 </div>
 
+<div id="modal-video" class="modal-backdrop hidden" style="z-index: 600;">
+  <div class="modal-content" style="padding: 0; background: #0A0E1A; border-top: 1px solid var(--glass-border);">
+    <div style="padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border);">
+      <div class="fw-700" id="video-title">Vidéo</div>
+      <button class="overlay-close" style="position: static;" onclick="document.getElementById('modal-video').classList.add('hidden')">✕</button>
+    </div>
+    <div style="width: 100%; aspect-ratio: 16/9; background: #000; position: relative; display: flex; align-items: center; justify-content: center;">
+      <!-- Pulsing CSS animation to simulate loading/playing video if no source is provided -->
+      <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(182,255,59,0.3); animation: pulse 1.5s infinite; position: absolute;"></div>
+      <div style="width: 30px; height: 30px; border-radius: 50%; background: var(--green); position: absolute; display: flex; align-items: center; justify-content: center; padding-left: 3px; color: #000;">▶</div>
+      <div style="position: absolute; bottom: 10px; font-size: 11px; color: rgba(255,255,255,0.5);">Démo Visuelle en cours...</div>
+    </div>
+    <div style="padding: 20px;">
+      <div class="text-sm text-dim mb-16">Concentre-toi sur la contraction et garde le dos bien droit. Expire lors de l'effort.</div>
+      <button class="btn btn-outline w-full" onclick="document.getElementById('modal-video').classList.add('hidden')">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <!-- V4 OVERLAYS -->
 <div id="overlay-review" class="review-popup hidden">
   <div class="review-card">
