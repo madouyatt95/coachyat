@@ -1,0 +1,222 @@
+// V7 Logic (Phase 4 & 5)
+
+// 1. STREAK FREEZE
+function buyStreakFreeze() {
+  const btn = document.querySelector('#modal-shop .btn-primary');
+  if(state.disciplineScore >= 500) {
+    // In a real app we'd deduct XP
+    btn.innerText = "Immunité Achetée ✅";
+    btn.style.background = "var(--green)";
+    btn.style.color = "#000";
+    setTimeout(() => {
+      document.getElementById('modal-shop').classList.add('hidden');
+      alert('Streak protégé ! Ton prochain jour manqué ne brisera pas ta série.');
+    }, 1500);
+  } else {
+    alert("Tu n'as pas assez d'XP pour acheter cet objet.");
+  }
+}
+
+// 2. SCAN FRIGO IA
+function generateFridgeRecipe() {
+  const inp = document.getElementById('fridge-input').value;
+  if(!inp) return alert("Dis-moi d'abord ce que tu as dans le frigo !");
+  
+  const btn = document.querySelector('#modal-fridge .btn-primary');
+  btn.innerText = "L'IA cuisine... 🧠";
+  
+  setTimeout(() => {
+    document.getElementById('fridge-result').classList.remove('hidden');
+    document.getElementById('fridge-recipe-name').innerText = "Bowl Protéiné Improvisé";
+    document.getElementById('fridge-recipe-desc').innerText = `J'ai mixé ${inp}. Fais revenir le tout à la poêle avec un filet d'huile d'olive et des épices. Parfait pour ta prise de muscle !`;
+    document.getElementById('fridge-p').innerText = "42g P";
+    document.getElementById('fridge-g').innerText = "35g G";
+    document.getElementById('fridge-l').innerText = "12g L";
+    btn.innerText = "Générer une autre recette";
+  }, 1500);
+}
+
+// 3. CARDIO AUDIO-GUIDÉ
+function startAudioCardio() {
+  alert("Démarrage du Cardio Audio-Guidé. Mets tes écouteurs. Ton écran va s'éteindre pour économiser la batterie.");
+  if ('speechSynthesis' in window) {
+    const u = new SpeechSynthesisUtterance("Prêt pour ce run ? On commence avec 5 minutes de chauffe à petit trot. C'est parti !");
+    u.lang = 'fr-FR';
+    window.speechSynthesis.speak(u);
+  }
+}
+
+// 4. CALCULATEUR 1RM
+function calculate1RM() {
+  const w = parseFloat(document.getElementById('rm-weight').value);
+  const r = parseInt(document.getElementById('rm-reps').value);
+  if(w && r) {
+    // Brzycki formula
+    const rm = w * (36 / (37 - r));
+    document.getElementById('rm-result').classList.remove('hidden');
+    document.getElementById('rm-value').innerText = `${Math.round(rm)} kg`;
+    if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+  }
+}
+
+// 6. CERTIFICAT 90 JOURS
+// Generate dynamically on Canvas
+document.addEventListener('DOMContentLoaded', () => {
+  const profileTab = document.querySelector('.nav-item:last-child');
+  if(profileTab) {
+    // Add hidden trigger in profile
+    const btn = document.createElement('button');
+    btn.className = "btn btn-outline w-full mt-16";
+    btn.style.borderColor = "var(--orange)";
+    btn.style.color = "var(--orange)";
+    btn.innerText = "🏆 Voir mon Certificat (Jour 90)";
+    btn.onclick = () => {
+      document.getElementById('modal-certificate').classList.remove('hidden');
+      drawCertificate();
+    };
+    document.getElementById('screen-profile').appendChild(btn);
+  }
+});
+
+function drawCertificate() {
+  const canvas = document.getElementById('cert-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  // BG
+  const grad = ctx.createLinearGradient(0,0,0,450);
+  grad.addColorStop(0, '#1a2035');
+  grad.addColorStop(1, '#0A0E1A');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,350,450);
+  
+  // Border
+  ctx.strokeStyle = '#B6FF3B';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(10,10,330,430);
+  
+  // Text
+  ctx.fillStyle = '#B6FF3B';
+  ctx.font = 'bold 24px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('COACHYAT', 175, 50);
+  
+  ctx.fillStyle = '#fff';
+  ctx.font = '20px sans-serif';
+  ctx.fillText('CERTIFICAT DE FIN', 175, 90);
+  ctx.font = 'bold 28px sans-serif';
+  ctx.fillText('90 JOURS', 175, 125);
+  
+  ctx.font = 'italic 16px sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.fillText('Décerné à', 175, 180);
+  
+  ctx.font = 'bold 32px sans-serif';
+  ctx.fillStyle = '#fff';
+  ctx.fillText(state.user?.name?.toUpperCase() || 'CHAMPION', 175, 220);
+  
+  ctx.font = '14px sans-serif';
+  ctx.fillStyle = 'var(--cyan)';
+  ctx.fillText(`+${state.sessionsCompleted} Séances complétées`, 175, 280);
+  ctx.fillText(`Discipline : ${state.disciplineScore}%`, 175, 310);
+  
+  // Fake signature
+  ctx.font = 'italic 24px serif';
+  ctx.fillStyle = '#B6FF3B';
+  ctx.fillText('FitCoach IA', 175, 380);
+  ctx.beginPath();
+  ctx.moveTo(100, 390);
+  ctx.lineTo(250, 390);
+  ctx.lineWidth = 1;
+  ctx.stroke();
+}
+
+// 7. IA TEMPO (Spotify Sync)
+let isSpotifySynced = false;
+function toggleSpotifySync() {
+  const btn = document.getElementById('btn-spotify');
+  isSpotifySynced = !isSpotifySynced;
+  if(isSpotifySynced) {
+    btn.style.background = "#1DB954";
+    btn.style.color = "#000";
+    btn.innerText = "Spotify Synced 🎵";
+    alert("Connecté à Spotify ! Le timer de la séance pulsera désormais sur les BPM de ta musique.");
+    // Simulate pulsing timer
+    const timer = document.getElementById('live-timer');
+    if(timer) timer.style.animation = "pulse 0.5s infinite"; // fast tempo
+  } else {
+    btn.style.background = "transparent";
+    btn.style.color = "#1DB954";
+    btn.innerText = "🎵 Spotify Sync";
+    const timer = document.getElementById('live-timer');
+    if(timer) timer.style.animation = "";
+  }
+}
+
+// 8. TINDER NUTRITION
+let tinderMeals = [
+  {n: "Poulet & Patate Douce", c: "620 kcal", p: "50g Protéines", img: "images/meal-chicken.png"},
+  {n: "Omelette & Avocat", c: "450 kcal", p: "30g Protéines", img: "images/meal-omelette.png"},
+  {n: "Bowl Saumon Quinoa", c: "580 kcal", p: "45g Protéines", img: "images/meal-salmon.png"}
+];
+let currentTinderIdx = 0;
+
+function startTinderNutrition() {
+  currentTinderIdx = 0;
+  updateTinderCard();
+  document.getElementById('modal-tinder').classList.remove('hidden');
+}
+
+function updateTinderCard() {
+  if(currentTinderIdx >= tinderMeals.length) {
+    document.getElementById('tinder-card').innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#fff;text-align:center;padding:20px;">L'IA a assez de données ! Tes repas seront parfaits. 🎯</div>`;
+    return;
+  }
+  const m = tinderMeals[currentTinderIdx];
+  const card = document.getElementById('tinder-card');
+  card.style.background = `url('${m.img}') center/cover`;
+  card.style.transform = 'translateX(0) rotate(0deg)';
+  document.getElementById('tinder-name').innerText = m.n;
+  document.getElementById('tinder-name').nextElementSibling.innerText = `${m.c} · ${m.p}`;
+}
+
+function swipeTinder(dir) {
+  const card = document.getElementById('tinder-card');
+  card.style.transform = `translateX(${dir==='left'?'-200%':'200%'}) rotate(${dir==='left'?'-20deg':'20deg'})`;
+  setTimeout(() => {
+    currentTinderIdx++;
+    updateTinderCard();
+  }, 300);
+}
+
+// 9. MODE GOGGINS (Hardcore Persona)
+function changeCoachPersona(val) {
+  if (val === 'hardcore') {
+    alert("🔥 MODE HARDCORE ACTIVÉ. Le coach n'acceptera plus aucune excuse.");
+    // Override coach replies
+    window.coachReplies = [
+      "Tu es fatigué ? Tes concurrents s'entraînent. Lève-toi !",
+      "Tes excuses sont pathétiques. Fais tes pompes.",
+      "Le repos c'est pour les faibles. On y retourne !",
+      "On ne s'arrête pas quand on est fatigué, on s'arrête quand on a FINI."
+    ];
+  } else {
+    // Reset to normal
+    window.coachReplies = [
+      "C'est normal d'avoir des jours comme ça. L'important c'est d'être là ! 💪",
+      "Je comprends. On va ajuster l'intensité. Ta santé passe avant tout. 🙏"
+    ];
+    alert("Mode normal activé. Bienveillance de retour.");
+  }
+}
+
+// 11. E-COMMERCE SUPPLEMENTS POPUP
+document.addEventListener('DOMContentLoaded', () => {
+  // Simulate showing this after the app has been open for 15 seconds to demo the feature
+  if (!localStorage.getItem('fc_ecommerce_shown')) {
+    setTimeout(() => {
+      document.getElementById('modal-ecommerce').classList.remove('hidden');
+      localStorage.setItem('fc_ecommerce_shown', 'true');
+    }, 15000);
+  }
+});

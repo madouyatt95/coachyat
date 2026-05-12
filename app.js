@@ -182,6 +182,13 @@ function finishOnboarding() {
   initApp();
 }
 
+function resetAccount() {
+  if (confirm('Es-tu sûr de vouloir supprimer toutes tes données et réinitialiser ton compte ?')) {
+    localStorage.clear();
+    location.reload();
+  }
+}
+
 // ========== NAVIGATION ==========
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));

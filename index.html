@@ -43,10 +43,20 @@
     <div class="progress-ring" id="today-ring"></div>
   </div>
 
+  <!-- AVATAR 3D CSS -->
+  <div class="card mt-16 flex justify-between items-center" style="background: linear-gradient(135deg, rgba(182,255,59,0.1), transparent);">
+    <div>
+      <div class="text-sm fw-600 text-green mb-4">Ton Avatar 3D (Évolution)</div>
+      <div class="text-xs text-dim">Jour 12 : -1.2% Masse Grasse</div>
+    </div>
+    <div style="width: 40px; height: 80px; background: url('images/splash-bg.png') center/cover; opacity: 0.8; clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%); border-radius: 8px;"></div>
+  </div>
+
   <div class="xp-bar-container">
     <div class="xp-info"><span>Niveau 12</span><span>450 / 1000 XP</span></div>
     <div class="xp-bar"><div class="xp-bar-fill" style="width: 45%;"></div></div>
   </div>
+  <button class="btn btn-outline w-full mb-16" style="border-color:var(--cyan); color:var(--cyan);" onclick="document.getElementById('modal-shop').classList.remove('hidden')">🧊 Acheter un Gel de Séquence (Shop)</button>
 
   <div class="workout-hero" onclick="showScreen('screen-training')">
     <img src="images/workout-hero.png" alt="Workout">
@@ -106,10 +116,14 @@
     <div class="screen-title">Entraînement</div>
     <button class="btn-icon btn-secondary" style="width:36px;height:36px" onclick="openQuickWorkout()">⚡</button>
   </div>
+  <!-- Tab Headers -->
   <div class="tabs mb-16">
     <div class="tab active">Aujourd'hui</div>
-    <div class="tab">Semaine</div>
-    <div class="tab">Maison</div>
+    <div class="tab" onclick="document.getElementById('modal-fridge').classList.remove('hidden')">📸 Scan Frigo</div>
+    <div class="tab" onclick="startTinderNutrition()">❤️ Tinder IA</div>
+  </div>
+
+  <div class="card flex items-center justify-between">
     <div class="tab">Salle</div>
   </div>
   <div class="week-calendar">
@@ -120,6 +134,11 @@
     <div class="cal-day"><span class="cal-day-label">Ven</span><div class="cal-day-num">14</div></div>
     <div class="cal-day"><span class="cal-day-label">Sam</span><div class="cal-day-num">15</div></div>
     <div class="cal-day"><span class="cal-day-label">Dim</span><div class="cal-day-num">16</div></div>
+  </div>
+  
+  <div class="flex gap-12 mb-16">
+    <button class="btn btn-outline" style="flex:1; border-color:var(--orange); color:var(--orange);" onclick="document.getElementById('modal-map').classList.remove('hidden')">🗺️ Drop Zone</button>
+    <button class="btn btn-outline" style="flex:1; border-color:var(--purple); color:var(--purple);" onclick="startAudioCardio()">🎧 Run Audio</button>
   </div>
   
   <div class="section-title">Programme du jour</div>
@@ -203,10 +222,11 @@
   <div class="screen-header">
     <div class="screen-title">Progression</div>
   </div>
+  <!-- Tab Headers -->
   <div class="tabs mb-16">
-    <div class="tab active">Aperçu</div>
-    <div class="tab">Détails</div>
+    <div class="tab active">Graphique</div>
     <div class="tab">Photos</div>
+    <div class="tab" onclick="document.getElementById('modal-1rm').classList.remove('hidden')">💪 1RM</div>
   </div>
 
   <div class="card">
@@ -442,7 +462,11 @@
     </div>
     
     <button id="live-action-btn" class="btn btn-primary mt-20" onclick="nextLiveStep()" style="height: 60px; font-size: 18px;">▶ Démarrer la série</button>
-    <button class="btn btn-outline mt-12" onclick="startAiCamera()" style="border-color:var(--green); color:var(--green);"><span style="font-size:16px;">📷</span> Activer la Caméra IA</button>
+    
+    <div class="flex gap-12 mt-12">
+      <button class="btn btn-outline" style="flex:1; border-color:var(--green); color:var(--green);" onclick="startAiCamera()"><span style="font-size:16px;">📷</span> Caméra IA</button>
+      <button class="btn btn-outline" style="flex:1; border-color:#1DB954; color:#1DB954;" id="btn-spotify" onclick="toggleSpotifySync()"><span style="font-size:16px;">🎵</span> Spotify Sync</button>
+    </div>
   </div>
 </div>
 
@@ -522,6 +546,31 @@
   </div>
 </div>
 
+<div id="modal-settings" class="modal-backdrop hidden" style="z-index: 600;">
+  <div class="modal-content">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Paramètres COACHYAT</div>
+    
+    <div class="mb-16">
+      <label class="text-sm fw-600 block mb-8">Personnalité du Coach (Mode Goggins)</label>
+      <select id="coach-persona" class="onboarding-input" style="width:100%; margin:0;" onchange="changeCoachPersona(this.value)">
+        <option value="normal">Normale (Encourageante)</option>
+        <option value="hardcore">Hardcore (David Goggins 🔥)</option>
+      </select>
+    </div>
+
+    <div class="mb-16">
+      <label class="text-sm fw-600 block mb-8">Abonnement</label>
+      <div class="flex justify-between items-center p-12" style="background:var(--glass); border-radius:var(--radius-sm); border:1px solid var(--purple);">
+        <div class="fw-700 text-purple">Freemium</div>
+        <button class="btn btn-outline" style="padding:4px 12px; font-size:11px;" onclick="openPaywall()">UPGRADE</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary w-full mt-12" onclick="document.getElementById('modal-settings').classList.add('hidden')">Fermer</button>
+  </div>
+</div>
+
 <!-- V6 OVERLAYS - AI CAMERA -->
 <div id="overlay-camera" class="overlay-screen hidden" style="background:#000; z-index: 400;">
   <div class="overlay-header" style="background:transparent; border:none; position:absolute; top:0; width:100%; z-index:10;">
@@ -558,5 +607,16 @@
 <script src="app-v5.js"></script>
 <script src="app-v6.js"></script>
 <script src="tfjs-movenet.js"></script>
+
+<!-- LOAD V7 OVERLAYS -->
+<script>
+  fetch('overlays-v7.html')
+    .then(response => response.text())
+    .then(data => {
+      document.body.insertAdjacentHTML('beforeend', data);
+    });
+</script>
+<script src="app-v7.js"></script>
+
 </body>
 </html>
