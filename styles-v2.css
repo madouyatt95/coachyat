@@ -1,13 +1,20 @@
 /* === V2 ADDITIONS === */
 
-/* Splash */
-.splash{position:fixed;inset:0;z-index:2000;background:var(--bg-primary);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s}
-.splash.hide{opacity:0;pointer-events:none}
-.splash-logo{font-size:48px;animation:pulse 1.5s ease infinite}
-.splash-title{font-size:28px;font-weight:900;margin-top:12px;background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.splash-bar{width:140px;height:3px;background:var(--glass);border-radius:2px;margin-top:24px;overflow:hidden}
-.splash-bar-fill{height:100%;background:var(--green);border-radius:2px;animation:splashLoad 1.8s ease forwards}
-@keyframes splashLoad{0%{width:0}100%{width:100%}}
+/* Splash COACHYAT */
+.splash-coachyat{position:fixed;inset:0;z-index:2000;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 20px;transition:opacity .6s}
+.splash-coachyat.hide{opacity:0;pointer-events:none}
+.splash-bg{position:absolute;inset:0;background:url('images/splash-bg.png') center/cover no-repeat;opacity:0.6;z-index:-1;}
+.splash-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.9) 100%);}
+.splash-content{text-align:center;display:flex;flex-direction:column;align-items:center;margin-top:20px;z-index:1;}
+.splash-logo-mark{margin-bottom:10px;animation:pulse 2s infinite;}
+.splash-brand-text{font-size:32px;font-weight:900;letter-spacing:2px;color:#fff;}
+.splash-subtitle{font-size:12px;font-weight:600;letter-spacing:1px;color:var(--text-secondary);margin-top:8px;}
+.splash-loader-container{width:100%;max-width:280px;z-index:1;margin-bottom:20px;}
+.splash-loader-text{font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;margin-bottom:8px;text-align:center;letter-spacing:1px;}
+.splash-loader-row{display:flex;align-items:center;gap:12px;}
+.splash-bar{flex:1;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;}
+.splash-bar-fill{height:100%;width:0%;background:var(--green);border-radius:2px;transition:width 0.1s linear;}
+.splash-loader-pct{font-size:12px;font-weight:700;color:#fff;width:30px;}
 
 /* Offline indicator */
 .offline-badge{position:fixed;top:0;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;padding:4px 16px;font-size:11px;font-weight:600;border-radius:0 0 10px 10px;z-index:3000;display:none}

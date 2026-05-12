@@ -7,11 +7,38 @@ const state = {
 };
 
 const exercises = [
+  // Pectoraux / Triceps
   {name:'Développé couché',detail:'4 séries x 8-10 reps',icon:'🏋️'},
   {name:'Développé incliné',detail:'4 séries x 10 reps',icon:'💪'},
-  {name:'Dips',detail:'3 séries x 12 reps',icon:'🔥'},
-  {name:'Élévations latérales',detail:'3 séries x 15 reps',icon:'⚡'},
-  {name:'Gainage',detail:'3 x 45 sec',icon:'🧱'}
+  {name:'Écartés couché',detail:'3 séries x 12 reps',icon:'🦋'},
+  {name:'Pompes (Push-ups)',detail:'3 séries x Max',icon:'🔥'},
+  {name:'Dips',detail:'3 séries x 12 reps',icon:'⚡'},
+  {name:'Extensions Triceps',detail:'3 séries x 15 reps',icon:'💪'},
+  // Dos / Biceps
+  {name:'Tirage vertical',detail:'4 séries x 10 reps',icon:'🦍'},
+  {name:'Rowing barre',detail:'4 séries x 8 reps',icon:'🚣'},
+  {name:'Tractions (Pull-ups)',detail:'3 séries x Max',icon:'🧗'},
+  {name:'Tirage horizontal',detail:'3 séries x 12 reps',icon:'🛶'},
+  {name:'Curl Biceps barre',detail:'3 séries x 12 reps',icon:'💪'},
+  {name:'Curl marteau',detail:'3 séries x 15 reps',icon:'🔨'},
+  // Jambes
+  {name:'Squat barre',detail:'4 séries x 8 reps',icon:'🦵'},
+  {name:'Presse à cuisses',detail:'4 séries x 10 reps',icon:'🧱'},
+  {name:'Fentes marchées',detail:'3 séries x 20 pas',icon:'🚶‍♂️'},
+  {name:'Leg Extension',detail:'3 séries x 15 reps',icon:'🦵'},
+  {name:'Leg Curl',detail:'3 séries x 15 reps',icon:'🦵'},
+  {name:'Mollets debout',detail:'4 séries x 20 reps',icon:'🦶'},
+  // Épaules
+  {name:'Développé militaire',detail:'4 séries x 10 reps',icon:'🏋️'},
+  {name:'Élévations latérales',detail:'4 séries x 15 reps',icon:'🦅'},
+  {name:'Oiseau (Face pull)',detail:'3 séries x 15 reps',icon:'🦉'},
+  {name:'Shrugs',detail:'3 séries x 15 reps',icon:'🤷‍♂️'},
+  // Core / Cardio
+  {name:'Gainage (Planche)',detail:'3 séries x 45 sec',icon:'🧱'},
+  {name:'Crunch poulie',detail:'3 séries x 15 reps',icon:'🍫'},
+  {name:'Jumping Jacks',detail:'Circuit 45 sec',icon:'🤸'},
+  {name:'Mountain Climbers',detail:'Circuit 45 sec',icon:'⛰️'},
+  {name:'Burpees',detail:'Circuit 45 sec',icon:'🤢'}
 ];
 
 const coachReplies = [

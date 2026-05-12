@@ -1,7 +1,7 @@
 {
-  "name": "FitCoach AI - Coach Fitness Intelligent",
-  "short_name": "FitCoach AI",
-  "description": "Votre coach fitness IA personnel - Programme 90 jours adaptatif",
+  "name": "COACHYAT - Ton coach, ton évolution",
+  "short_name": "COACHYAT",
+  "description": "Ton coach fitness IA personnel - Programme 90 jours adaptatif",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A0E1A",

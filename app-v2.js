@@ -1,11 +1,27 @@
 // V2 Logic for FitCoach AI
 
-// 11. Splash Screen
+// 11. Splash Screen COACHYAT
 window.addEventListener('load', () => {
-  setTimeout(() => {
-    const splash = document.getElementById('splash');
-    if (splash) splash.classList.add('hide');
-  }, 2000);
+  const splash = document.getElementById('splash');
+  const bar = document.getElementById('splash-progress');
+  const pct = document.getElementById('splash-pct');
+  if (!splash || !bar || !pct) return;
+
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += Math.floor(Math.random() * 15) + 5;
+    if (progress > 100) progress = 100;
+    
+    bar.style.width = `${progress}%`;
+    pct.innerText = `${progress}%`;
+    
+    if (progress === 100) {
+      clearInterval(interval);
+      setTimeout(() => {
+        splash.classList.add('hide');
+      }, 500);
+    }
+  }, 150);
 });
 
 // 17. Offline Handling

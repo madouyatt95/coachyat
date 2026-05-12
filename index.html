@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#0A0E1A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="FitCoach AI - Votre coach fitness intelligent. Programme 90 jours adaptatif avec IA.">
-<title>FitCoach AI</title>
+<meta name="description" content="COACHYAT - Ton coach, ton évolution. Programme 90 jours adaptatif avec IA.">
+<title>COACHYAT</title>
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="styles-v2.css">
@@ -391,10 +391,27 @@
 <button id="fab-coach" style="position:fixed;bottom:100px;right:max(calc(50% - 195px),16px);width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--cyan));border:none;font-size:24px;cursor:pointer;z-index:90;box-shadow:0 4px 20px rgba(182,255,59,.3);animation:float 3s ease infinite" onclick="openCoach()">🤖</button>
 
 <!-- V2 OVERLAYS -->
-<div id="splash" class="splash">
-  <div class="splash-logo">💪</div>
-  <div class="splash-title">FitCoach AI</div>
-  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+<div id="splash" class="splash splash-coachyat">
+  <div class="splash-bg"></div>
+  <div class="splash-content">
+    <div class="splash-logo-mark">
+      <svg viewBox="0 0 100 100" width="80" height="80">
+        <path d="M20,20 L50,50 L80,20 L65,20 L50,35 L35,20 Z" fill="#B6FF3B"/>
+        <path d="M50,50 L50,90 L40,80 L40,50 Z" fill="#B6FF3B"/>
+        <path d="M50,50 L50,70 L60,60 L60,40 Z" fill="#B6FF3B" opacity="0.7"/>
+      </svg>
+    </div>
+    <div class="splash-brand-text">COACH<span style="color:var(--green)">YAT</span></div>
+    <div class="splash-subtitle">TON COACH. TON ÉVOLUTION.</div>
+  </div>
+  
+  <div class="splash-loader-container">
+    <div class="splash-loader-text">CHARGEMENT...</div>
+    <div class="splash-loader-row">
+      <div class="splash-bar"><div class="splash-bar-fill" id="splash-progress"></div></div>
+      <div class="splash-loader-pct" id="splash-pct">0%</div>
+    </div>
+  </div>
 </div>
 
 <div id="offline-badge" class="offline-badge">Mode hors-ligne</div>
@@ -425,6 +442,7 @@
     </div>
     
     <button id="live-action-btn" class="btn btn-primary mt-20" onclick="nextLiveStep()" style="height: 60px; font-size: 18px;">▶ Démarrer la série</button>
+    <button class="btn btn-outline mt-12" onclick="startAiCamera()" style="border-color:var(--green); color:var(--green);"><span style="font-size:16px;">📷</span> Activer la Caméra IA</button>
   </div>
 </div>
 
@@ -470,7 +488,7 @@
 <div id="overlay-share" class="review-popup hidden">
   <div class="review-card" style="padding: 0; overflow: hidden; background: transparent; box-shadow: none;">
     <div id="share-card-content" class="share-card">
-      <div class="brand">FITCOACH AI</div>
+      <div class="brand">COACHYAT</div>
       <div class="text-2xl fw-900 mb-8">SÉANCE DÉTRUITE 🔥</div>
       <div class="text-md text-dim mb-16" id="share-workout-name">Push Upper Body</div>
       <div class="flex justify-between mt-20" style="gap: 10px;">
@@ -485,10 +503,41 @@
   </div>
 </div>
 
+<!-- V6 OVERLAYS - AI CAMERA -->
+<div id="overlay-camera" class="overlay-screen hidden" style="background:#000; z-index: 400;">
+  <div class="overlay-header" style="background:transparent; border:none; position:absolute; top:0; width:100%; z-index:10;">
+    <button class="overlay-close" onclick="stopAiCamera()" style="background:rgba(0,0,0,0.5); backdrop-filter:blur(5px);">&times;</button>
+    <div class="fw-600" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Caméra IA (BETA)</div>
+    <div style="width:36px"></div>
+  </div>
+  
+  <div style="position:relative; width:100%; height:100%; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+    <video id="ai-video" playsinline style="width:100%; height:100%; object-fit:cover; transform: scaleX(-1);"></video>
+    <canvas id="ai-canvas" style="position:absolute; top:0; left:0; width:100%; height:100%; transform: scaleX(-1);"></canvas>
+    
+    <!-- UI Overlay on top of camera -->
+    <div style="position:absolute; bottom:40px; left:20px; right:20px; text-align:center; z-index:10;">
+      <div id="ai-rep-counter" style="font-size:72px; font-weight:900; color:var(--green); text-shadow: 0 4px 10px rgba(0,0,0,0.8); font-variant-numeric:tabular-nums;">0</div>
+      <div class="text-sm fw-600 mb-20" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">RÉPÉTITIONS</div>
+      
+      <div id="ai-status" style="background:rgba(0,0,0,0.7); backdrop-filter:blur(10px); padding:12px 20px; border-radius:var(--radius); border:1px solid var(--green); display:inline-block; font-size:14px; font-weight:600;">
+        Chargement du modèle...
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+
 <script src="app.js"></script>
 <script src="app-v2.js"></script>
 <script src="app-v3.js"></script>
 <script src="app-v4.js"></script>
 <script src="app-v5.js"></script>
+<script src="app-v6.js"></script>
+<script src="tfjs-movenet.js"></script>
 </body>
 </html>

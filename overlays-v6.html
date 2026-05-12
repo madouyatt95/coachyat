@@ -1,0 +1,23 @@
+<!-- V6 OVERLAYS - AI CAMERA -->
+<div id="overlay-camera" class="overlay-screen hidden" style="background:#000; z-index: 400;">
+  <div class="overlay-header" style="background:transparent; border:none; position:absolute; top:0; width:100%; z-index:10;">
+    <button class="overlay-close" onclick="stopAiCamera()" style="background:rgba(0,0,0,0.5); backdrop-filter:blur(5px);">&times;</button>
+    <div class="fw-600" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Caméra IA (BETA)</div>
+    <div style="width:36px"></div>
+  </div>
+  
+  <div style="position:relative; width:100%; height:100%; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+    <video id="ai-video" playsinline style="width:100%; height:100%; object-fit:cover; transform: scaleX(-1);"></video>
+    <canvas id="ai-canvas" style="position:absolute; top:0; left:0; width:100%; height:100%; transform: scaleX(-1);"></canvas>
+    
+    <!-- UI Overlay on top of camera -->
+    <div style="position:absolute; bottom:40px; left:20px; right:20px; text-align:center; z-index:10;">
+      <div id="ai-rep-counter" style="font-size:72px; font-weight:900; color:var(--green); text-shadow: 0 4px 10px rgba(0,0,0,0.8); font-variant-numeric:tabular-nums;">0</div>
+      <div class="text-sm fw-600 mb-20" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">RÉPÉTITIONS</div>
+      
+      <div id="ai-status" style="background:rgba(0,0,0,0.7); backdrop-filter:blur(10px); padding:12px 20px; border-radius:var(--radius); border:1px solid var(--green); display:inline-block; font-size:14px; font-weight:600;">
+        Chargement du modèle...
+      </div>
+    </div>
+  </div>
+</div>
