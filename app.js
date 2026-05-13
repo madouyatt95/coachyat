@@ -52,42 +52,42 @@ function showLevelUpModal() {
 }
 
 const exercises = [
-  // Pectoraux / Triceps
-  {name:'Développé couché',detail:'4 séries x 8-10 reps',icon:'🏋️',equip:'gym'},
-  {name:'Développé incliné',detail:'4 séries x 10 reps',icon:'💪',equip:'gym'},
-  {name:'Écartés couché',detail:'3 séries x 12 reps',icon:'🦋',equip:'dumbbells'},
-  {name:'Pompes (Push-ups)',detail:'3 séries x Max',icon:'🔥',equip:'none'},
-  {name:'Dips',detail:'3 séries x 12 reps',icon:'⚡',equip:'none'},
-  {name:'Extensions Triceps',detail:'3 séries x 15 reps',icon:'💪',equip:'dumbbells'},
-  // Dos / Biceps
-  {name:'Tirage vertical',detail:'4 séries x 10 reps',icon:'🦍',equip:'gym'},
-  {name:'Rowing barre',detail:'4 séries x 8 reps',icon:'🚣',equip:'gym'},
-  {name:'Tractions (Pull-ups)',detail:'3 séries x Max',icon:'🧗',equip:'none'},
-  {name:'Tirage horizontal',detail:'3 séries x 12 reps',icon:'🛶',equip:'gym'},
-  {name:'Rowing haltères',detail:'3 séries x 12 reps',icon:'🚣',equip:'dumbbells'},
-  {name:'Curl Biceps barre',detail:'3 séries x 12 reps',icon:'💪',equip:'gym'},
-  {name:'Curl marteau',detail:'3 séries x 15 reps',icon:'🔨',equip:'dumbbells'},
-  // Jambes
-  {name:'Squat barre',detail:'4 séries x 8 reps',icon:'🦵',equip:'gym'},
-  {name:'Presse à cuisses',detail:'4 séries x 10 reps',icon:'🧱',equip:'gym'},
-  {name:'Goblet Squat',detail:'4 séries x 12 reps',icon:'🏋️',equip:'dumbbells'},
-  {name:'Fentes marchées',detail:'3 séries x 20 pas',icon:'🚶‍♂️',equip:'none'},
-  {name:'Leg Extension',detail:'3 séries x 15 reps',icon:'🦵',equip:'gym'},
-  {name:'Leg Curl',detail:'3 séries x 15 reps',icon:'🦵',equip:'gym'},
-  {name:'Mollets debout',detail:'4 séries x 20 reps',icon:'🦶',equip:'none'},
-  // Épaules
-  {name:'Développé militaire',detail:'4 séries x 10 reps',icon:'🏋️',equip:'gym'},
-  {name:'Développé haltères',detail:'4 séries x 10 reps',icon:'🏋️',equip:'dumbbells'},
-  {name:'Élévations latérales',detail:'4 séries x 15 reps',icon:'🦅',equip:'dumbbells'},
-  {name:'Oiseau (Face pull)',detail:'3 séries x 15 reps',icon:'🦉',equip:'gym'},
-  {name:'Shrugs',detail:'3 séries x 15 reps',icon:'🤷‍♂️',equip:'dumbbells'},
-  // Core / Cardio
-  {name:'Gainage (Planche)',detail:'3 séries x 45 sec',icon:'🧱',equip:'none'},
-  {name:'Crunch poulie',detail:'3 séries x 15 reps',icon:'🍫',equip:'gym'},
-  {name:'Crunch au sol',detail:'3 séries x 20 reps',icon:'🍫',equip:'none'},
-  {name:'Jumping Jacks',detail:'Circuit 45 sec',icon:'🤸',equip:'none'},
-  {name:'Mountain Climbers',detail:'Circuit 45 sec',icon:'⛰️',equip:'none'},
-  {name:'Burpees',detail:'Circuit 45 sec',icon:'🤢',equip:'none'}
+  // Pectoraux / Triceps (PUSH)
+  {name:'Développé couché',detail:'4 séries x 8-10 reps',icon:'🏋️',equip:'gym',type:'push'},
+  {name:'Développé incliné',detail:'4 séries x 10 reps',icon:'💪',equip:'gym',type:'push'},
+  {name:'Écartés couché',detail:'3 séries x 12 reps',icon:'🦋',equip:'dumbbells',type:'push'},
+  {name:'Pompes (Push-ups)',detail:'3 séries x Max',icon:'🔥',equip:'none',type:'push'},
+  {name:'Dips',detail:'3 séries x 12 reps',icon:'⚡',equip:'none',type:'push'},
+  {name:'Extensions Triceps',detail:'3 séries x 15 reps',icon:'💪',equip:'dumbbells',type:'push'},
+  // Dos / Biceps (PULL)
+  {name:'Tirage vertical',detail:'4 séries x 10 reps',icon:'🦍',equip:'gym',type:'pull'},
+  {name:'Rowing barre',detail:'4 séries x 8 reps',icon:'🚣',equip:'gym',type:'pull'},
+  {name:'Tractions (Pull-ups)',detail:'3 séries x Max',icon:'🧗',equip:'none',type:'pull'},
+  {name:'Tirage horizontal',detail:'3 séries x 12 reps',icon:'🛶',equip:'gym',type:'pull'},
+  {name:'Rowing haltères',detail:'3 séries x 12 reps',icon:'🚣',equip:'dumbbells',type:'pull'},
+  {name:'Curl Biceps barre',detail:'3 séries x 12 reps',icon:'💪',equip:'gym',type:'pull'},
+  {name:'Curl marteau',detail:'3 séries x 15 reps',icon:'🔨',equip:'dumbbells',type:'pull'},
+  // Jambes (LEGS)
+  {name:'Squat barre',detail:'4 séries x 8 reps',icon:'🦵',equip:'gym',type:'legs'},
+  {name:'Presse à cuisses',detail:'4 séries x 10 reps',icon:'🧱',equip:'gym',type:'legs'},
+  {name:'Goblet Squat',detail:'4 séries x 12 reps',icon:'🏋️',equip:'dumbbells',type:'legs'},
+  {name:'Fentes marchées',detail:'3 séries x 20 pas',icon:'🚶‍♂️',equip:'none',type:'legs'},
+  {name:'Leg Extension',detail:'3 séries x 15 reps',icon:'🦵',equip:'gym',type:'legs'},
+  {name:'Leg Curl',detail:'3 séries x 15 reps',icon:'🦵',equip:'gym',type:'legs'},
+  {name:'Mollets debout',detail:'4 séries x 20 reps',icon:'🦶',equip:'none',type:'legs'},
+  // Épaules (PUSH/PULL)
+  {name:'Développé militaire',detail:'4 séries x 10 reps',icon:'🏋️',equip:'gym',type:'push'},
+  {name:'Développé haltères',detail:'4 séries x 10 reps',icon:'🏋️',equip:'dumbbells',type:'push'},
+  {name:'Élévations latérales',detail:'4 séries x 15 reps',icon:'🦅',equip:'dumbbells',type:'push'},
+  {name:'Oiseau (Face pull)',detail:'3 séries x 15 reps',icon:'🦉',equip:'gym',type:'pull'},
+  {name:'Shrugs',detail:'3 séries x 15 reps',icon:'🤷‍♂️',equip:'dumbbells',type:'pull'},
+  // Core / Cardio (CORE)
+  {name:'Gainage (Planche)',detail:'3 séries x 45 sec',icon:'🧱',equip:'none',type:'core'},
+  {name:'Crunch poulie',detail:'3 séries x 15 reps',icon:'🍫',equip:'gym',type:'core'},
+  {name:'Crunch au sol',detail:'3 séries x 20 reps',icon:'🍫',equip:'none',type:'core'},
+  {name:'Jumping Jacks',detail:'Circuit 45 sec',icon:'🤸',equip:'none',type:'core'},
+  {name:'Mountain Climbers',detail:'Circuit 45 sec',icon:'⛰️',equip:'none',type:'core'},
+  {name:'Burpees',detail:'Circuit 45 sec',icon:'🤢',equip:'none',type:'core'}
 ];
 
 const coachReplies = [
@@ -466,19 +466,28 @@ function renderExercises() {
   const routineNames = ["PUSH (Pectoraux/Triceps)", "LEGS (Jambes)", "PULL (Dos/Biceps)", "CORE & CARDIO"];
   
   let allowedEquip = ['none'];
-  const userEquip = state.user?.equipment || 'Maison (sans matériel)';
-  if (userEquip === 'Maison (avec haltères)') allowedEquip = ['none', 'dumbbells'];
-  if (userEquip === 'Salle de sport') allowedEquip = ['none', 'dumbbells', 'gym'];
+  if (state.equipment && Array.isArray(state.equipment)) {
+    allowedEquip = ['none', ...state.equipment];
+  } else {
+    const userEquip = state.user?.equipment || 'none';
+    if (userEquip.includes('haltères')) allowedEquip = ['none', 'dumbbells'];
+    if (userEquip.includes('Salle')) allowedEquip = ['none', 'dumbbells', 'gym'];
+  }
 
-  // Filter exercises based on routine and equipment
-  let filtered = [];
-  if (routineIdx === 0) filtered = exercises.filter(e => ['Développé couché','Développé incliné','Pompes (Push-ups)','Dips','Extensions Triceps'].includes(e.name));
-  else if (routineIdx === 1) filtered = exercises.filter(e => ['Squat barre','Presse à cuisses','Fentes marchées','Leg Extension','Mollets debout'].includes(e.name));
-  else if (routineIdx === 2) filtered = exercises.filter(e => ['Tirage vertical','Rowing barre','Tractions (Pull-ups)','Curl Biceps barre','Curl marteau'].includes(e.name));
-  else filtered = exercises.filter(e => ['Gainage (Planche)','Crunch poulie','Jumping Jacks','Mountain Climbers','Burpees'].includes(e.name));
-
-  // Further filter by equipment
-  filtered = filtered.filter(e => allowedEquip.includes(e.equip));
+  // Filter exercises based on routine type AND allowed equipment
+  const typeMap = ["push", "legs", "pull", "core"];
+  const targetType = typeMap[routineIdx];
+  
+  let filtered = exercises.filter(e => e.type === targetType && allowedEquip.includes(e.equip));
+  
+  // If we don't have enough exercises of that type with current equipment, add some 'core' or 'none' ones
+  if (filtered.length < 3) {
+    const fallbacks = exercises.filter(e => e.equip === 'none' && !filtered.includes(e)).slice(0, 3);
+    filtered = [...filtered, ...fallbacks];
+  }
+  
+  // Slice to 6 max
+  filtered = filtered.slice(0, 6);
 
   // Store them for live session
   if (viewedDay === state.day) window.currentDailyWorkout = filtered;

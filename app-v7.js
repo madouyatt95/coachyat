@@ -143,11 +143,6 @@ function drawCertificate() {
 }
 
 // 8. TINDER NUTRITION
-let tinderMeals = [
-  {n: "Poulet & Patate Douce", c: "620 kcal", p: "50g Protéines", img: "images/meal-chicken.png"},
-  {n: "Omelette & Avocat", c: "450 kcal", p: "30g Protéines", img: "images/meal-omelette.png"},
-  {n: "Bowl Saumon Quinoa", c: "580 kcal", p: "45g Protéines", img: "images/meal-salmon.png"}
-];
 const tinderMeals = [
   {id:1, name:'Saumon Quinoa', cal:580, p:'45g P', img:'images/meal-salmon.png'},
   {id:2, name:'Omelette Avocat', cal:520, p:'32g P', img:'images/meal-omelette.png'},

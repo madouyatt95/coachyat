@@ -59,17 +59,10 @@
   <!-- AVATAR 3D CSS -->
   <div class="card mt-16 flex justify-between items-center" style="background: linear-gradient(135deg, rgba(182,255,59,0.1), transparent);">
     <div>
-      <div class="text-sm fw-600 text-green mb-4">Ton Avatar 3D (Évolution)</div>
+      <div class="text-sm fw-600 text-green mb-4">Statistiques IA</div>
       <div class="text-xs text-dim">Jour 12 : -1.2% Masse Grasse</div>
     </div>
-    <div class="avatar-3d-wrapper">
-      <div class="avatar-3d">
-        <div class="avatar-body"></div>
-        <div class="avatar-head"></div>
-        <div class="avatar-arm left"></div>
-        <div class="avatar-arm right"></div>
-      </div>
-    </div>
+    <div style="font-size: 32px;">📊</div>
   </div>
 
   <div class="xp-bar-container">
@@ -290,14 +283,7 @@
     </div>
   </div>
   <div class="profile-header">
-    <div class="profile-avatar">
-      <div class="avatar-3d">
-        <div class="avatar-body"></div>
-        <div class="avatar-head"></div>
-        <div class="avatar-arm left"></div>
-        <div class="avatar-arm right"></div>
-      </div>
-    </div>
+    <div class="profile-avatar">👤</div>
     <div>
       <div class="profile-name" id="profile-name">Mamad</div>
       <div class="profile-meta">Objectif : Perte de poids</div>
@@ -837,17 +823,7 @@ input:checked + .slider { background-color: var(--green); }
 input:checked + .slider:before { transform: translateX(20px); }
 </style>
 
-<style>
-/* Avatar 3D CSS Animation */
-.avatar-3d { position: relative; width: 40px; height: 40px; transform-style: preserve-3d; animation: avatarFloat 3s ease-in-out infinite; }
-.avatar-body { position: absolute; bottom: 0; left: 10px; width: 20px; height: 25px; background: var(--green); border-radius: 6px; }
-.avatar-head { position: absolute; top: 0; left: 12px; width: 16px; height: 16px; background: #FFDBAC; border-radius: 50%; }
-.avatar-arm { position: absolute; top: 12px; width: 6px; height: 15px; background: var(--green-dim); border-radius: 3px; transform-origin: top; }
-.avatar-arm.left { left: 4px; animation: armSwing 1.5s ease-in-out infinite alternate; }
-.avatar-arm.right { right: 4px; animation: armSwing 1.5s ease-in-out infinite alternate-reverse; }
 
-@keyframes avatarFloat { 0%, 100% { transform: translateY(0) rotateY(0deg); } 50% { transform: translateY(-5px) rotateY(10deg); } }
-@keyframes armSwing { from { transform: rotate(10deg); } to { transform: rotate(-10deg); } }
 
 /* Loot Markers */
 .loot-pulse { font-size: 24px; animation: pulseGlow 1.5s infinite; filter: drop-shadow(0 0 5px var(--green)); }
