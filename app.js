@@ -279,6 +279,9 @@ function toggleEquip(id, checked) {
     state.equipment = state.equipment.filter(e => e !== id);
   }
   saveState();
+  // Immediate UI Sync
+  renderExercises();
+  updateDashboardWorkout();
 }
 
 function openNotifications() {

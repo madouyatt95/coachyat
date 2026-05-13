@@ -62,7 +62,14 @@
       <div class="text-sm fw-600 text-green mb-4">Ton Avatar 3D (Évolution)</div>
       <div class="text-xs text-dim">Jour 12 : -1.2% Masse Grasse</div>
     </div>
-    <div style="width: 40px; height: 80px; background: url('images/splash-bg.png') center/cover; opacity: 0.8; clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%); border-radius: 8px;"></div>
+    <div class="avatar-3d-wrapper">
+      <div class="avatar-3d">
+        <div class="avatar-body"></div>
+        <div class="avatar-head"></div>
+        <div class="avatar-arm left"></div>
+        <div class="avatar-arm right"></div>
+      </div>
+    </div>
   </div>
 
   <div class="xp-bar-container">
@@ -283,7 +290,14 @@
     </div>
   </div>
   <div class="profile-header">
-    <div class="profile-avatar">👤</div>
+    <div class="profile-avatar">
+      <div class="avatar-3d">
+        <div class="avatar-body"></div>
+        <div class="avatar-head"></div>
+        <div class="avatar-arm left"></div>
+        <div class="avatar-arm right"></div>
+      </div>
+    </div>
     <div>
       <div class="profile-name" id="profile-name">Mamad</div>
       <div class="profile-meta">Objectif : Perte de poids</div>
@@ -821,6 +835,27 @@
 .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: #fff; transition: .4s; border-radius: 50%; }
 input:checked + .slider { background-color: var(--green); }
 input:checked + .slider:before { transform: translateX(20px); }
+</style>
+
+<style>
+/* Avatar 3D CSS Animation */
+.avatar-3d { position: relative; width: 40px; height: 40px; transform-style: preserve-3d; animation: avatarFloat 3s ease-in-out infinite; }
+.avatar-body { position: absolute; bottom: 0; left: 10px; width: 20px; height: 25px; background: var(--green); border-radius: 6px; }
+.avatar-head { position: absolute; top: 0; left: 12px; width: 16px; height: 16px; background: #FFDBAC; border-radius: 50%; }
+.avatar-arm { position: absolute; top: 12px; width: 6px; height: 15px; background: var(--green-dim); border-radius: 3px; transform-origin: top; }
+.avatar-arm.left { left: 4px; animation: armSwing 1.5s ease-in-out infinite alternate; }
+.avatar-arm.right { right: 4px; animation: armSwing 1.5s ease-in-out infinite alternate-reverse; }
+
+@keyframes avatarFloat { 0%, 100% { transform: translateY(0) rotateY(0deg); } 50% { transform: translateY(-5px) rotateY(10deg); } }
+@keyframes armSwing { from { transform: rotate(10deg); } to { transform: rotate(-10deg); } }
+
+/* Loot Markers */
+.loot-pulse { font-size: 24px; animation: pulseGlow 1.5s infinite; filter: drop-shadow(0 0 5px var(--green)); }
+@keyframes pulseGlow { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+.user-map-marker { font-size: 24px; filter: drop-shadow(0 0 8px #fff); }
+
+/* Liked Meals */
+.suggestion-card.is-liked { border-color: var(--green); box-shadow: 0 0 15px rgba(182,255,59,0.2); }
 </style>
 
 </body>

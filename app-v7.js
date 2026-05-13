@@ -148,46 +148,86 @@ let tinderMeals = [
   {n: "Omelette & Avocat", c: "450 kcal", p: "30g Protéines", img: "images/meal-omelette.png"},
   {n: "Bowl Saumon Quinoa", c: "580 kcal", p: "45g Protéines", img: "images/meal-salmon.png"}
 ];
+const tinderMeals = [
+  {id:1, name:'Saumon Quinoa', cal:580, p:'45g P', img:'images/meal-salmon.png'},
+  {id:2, name:'Omelette Avocat', cal:520, p:'32g P', img:'images/meal-omelette.png'},
+  {id:3, name:'Poulet Curry', cal:610, p:'48g P', img:'images/meal-chicken.png'},
+  {id:4, name:'Bowl Patate Douce', cal:450, p:'22g P', img:'images/meal-veggie.png'},
+  {id:5, name:'Steak 5% & Pâtes', cal:650, p:'50g P', img:'images/meal-beef.png'}
+];
 let currentTinderIdx = 0;
 
 function startTinderNutrition() {
   currentTinderIdx = 0;
   updateTinderCard();
   document.getElementById('modal-tinder').classList.remove('hidden');
-  
-  const card = document.getElementById('tinder-card');
-  let startX = 0;
-  
-  card.ontouchstart = (e) => { startX = e.touches[0].clientX; };
-  card.ontouchend = (e) => {
-    const endX = e.changedTouches[0].clientX;
-    const diff = endX - startX;
-    if (Math.abs(diff) > 100) {
-      swipeTinder(diff > 0 ? 'right' : 'left');
-    }
-  };
 }
 
 function updateTinderCard() {
+  const card = document.getElementById('tinder-card');
   if(currentTinderIdx >= tinderMeals.length) {
-    document.getElementById('tinder-card').innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#fff;text-align:center;padding:20px;">L'IA a assez de données ! Tes repas seront parfaits. 🎯</div>`;
+    card.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#fff;text-align:center;padding:20px;background:var(--bg-card);">
+      <div style="font-size:48px;margin-bottom:16px;">🎯</div>
+      <div class="fw-800">Intelligence Nutritionnelle à jour !</div>
+      <div class="text-sm text-dim mt-8">Tes suggestions ont été personnalisées.</div>
+      <button class="btn btn-primary mt-20" onclick="closeOverlay('modal-tinder')">Fermer</button>
+    </div>`;
     return;
   }
   const m = tinderMeals[currentTinderIdx];
-  const card = document.getElementById('tinder-card');
   card.style.background = `url('${m.img}') center/cover`;
   card.style.transform = 'translateX(0) rotate(0deg)';
-  document.getElementById('tinder-name').innerText = m.n;
-  document.getElementById('tinder-name').nextElementSibling.innerText = `${m.c} · ${m.p}`;
+  card.style.opacity = '1';
+  document.getElementById('tinder-name').innerText = m.name;
+  document.getElementById('tinder-name').nextElementSibling.innerText = `${m.cal} kcal · ${m.p}`;
+  
+  let startX = 0;
+  card.ontouchstart = (e) => { startX = e.touches[0].clientX; card.style.transition = 'none'; };
+  card.ontouchmove = (e) => {
+    const x = e.touches[0].clientX - startX;
+    card.style.transform = `translateX(${x}px) rotate(${x/20}deg)`;
+  };
+  card.ontouchend = (e) => {
+    const x = e.changedTouches[0].clientX - startX;
+    card.style.transition = 'all .3s ease';
+    if(Math.abs(x) > 100) swipeTinder(x > 0 ? 'right' : 'left');
+    else card.style.transform = 'none';
+  };
 }
 
 function swipeTinder(dir) {
+  const m = tinderMeals[currentTinderIdx];
+  if (!state.prefs.likedMeals) state.prefs.likedMeals = [];
+  if (!state.prefs.dislikedMeals) state.prefs.dislikedMeals = [];
+
+  if(dir === 'right') state.prefs.likedMeals.push(m.name);
+  else state.prefs.dislikedMeals.push(m.name);
+  
+  saveState();
   const card = document.getElementById('tinder-card');
   card.style.transform = `translateX(${dir==='left'?'-200%':'200%'}) rotate(${dir==='left'?'-20deg':'20deg'})`;
+  card.style.opacity = '0';
+  
   setTimeout(() => {
     currentTinderIdx++;
     updateTinderCard();
+    updateNutritionUI(); // Custom function to refresh suggestions
   }, 300);
+}
+
+function updateNutritionUI() {
+  const container = document.querySelector('.suggestion-grid');
+  if(!container) return;
+  const filtered = tinderMeals.filter(m => !state.prefs.dislikedMeals?.includes(m.name));
+  container.innerHTML = filtered.map(m => `
+    <div class="suggestion-card ${state.prefs.likedMeals?.includes(m.name)?'is-liked':''}">
+      <img src="${m.img}" alt="">
+      <div class="info">
+        <div class="name">${m.name} ${state.prefs.likedMeals?.includes(m.name)?'❤️':''}</div>
+        <div class="cal">${m.cal} kcal</div>
+      </div>
+    </div>
+  `).join('');
 }
 
 // 9. MODE GOGGINS (Hardcore Persona)
@@ -227,38 +267,45 @@ let leafMap = null;
 
 function initMap() {
   document.getElementById('modal-map').classList.remove('hidden');
-  
-  if (leafMap) return; // Already initialized
+  if (leafMap) return;
 
-  // Wait for modal to be visible so size is correct
   setTimeout(() => {
-    leafMap = L.map('map').setView([48.8566, 2.3522], 13); // Default to Paris
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    leafMap = L.map('map', { zoomControl: false }).setView([48.8566, 2.3522], 16);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: 'COACHYAT'
     }).addTo(leafMap);
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        leafMap.setView([lat, lng], 15);
+        const lat = pos.coords.latitude, lng = pos.coords.longitude;
+        leafMap.setView([lat, lng], 17);
         
-        L.marker([lat, lng]).addTo(leafMap)
-          .bindPopup('Tu es ici 📍')
-          .openPopup();
+        const userIcon = L.divIcon({ className: 'user-map-marker', html: '📍', iconSize: [30, 30] });
+        L.marker([lat, lng], {icon: userIcon}).addTo(leafMap).bindPopup('Toi 🏋️');
 
-        // Add a fake Drop Zone nearby
-        L.circle([lat + 0.002, lng + 0.002], {
-          color: 'red',
-          fillColor: '#f03',
-          fillOpacity: 0.5,
-          radius: 100
-        }).addTo(leafMap).bindPopup('<b>Drop Zone Secrète 🎁</b><br>Cours ici pour 1000 XP.');
+        const gems = [
+          {lat: lat+0.0008, lng: lng+0.0008, type: 'gem', emoji: '💎', xp: 50},
+          {lat: lat-0.0008, lng: lng+0.0004, type: 'chest', emoji: '🎁', xp: 150},
+          {lat: lat+0.0004, lng: lng-0.0009, type: 'gem', emoji: '🔥', xp: 75}
+        ];
 
-      }, () => {
-        alert("Géolocalisation refusée. Affichage par défaut.");
-      });
+        gems.forEach(g => {
+          const m = L.marker([g.lat, g.lng], {
+            icon: L.divIcon({ className: 'loot-marker', html: `<div class="loot-pulse">${g.emoji}</div>`, iconSize: [40, 40] })
+          }).addTo(leafMap);
+          
+          m.on('click', () => {
+            const dist = leafMap.distance([lat, lng], [g.lat, g.lng]);
+            if (dist < 100) {
+              m.remove();
+              addXP(g.xp);
+              alert(`BRAVO ! Tu as récupéré ${g.xp} XP ! 🚀`);
+            } else {
+              alert(`Trop loin ! Rapproche-toi encore de ${Math.round(dist - 100)}m.`);
+            }
+          });
+        });
+      }, () => { alert("Géolocalisation refusée."); });
     }
   }, 300);
 }
