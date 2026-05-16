@@ -148,7 +148,21 @@ function initApp() {
   }
   
   updateDashboardWorkout();
-  renderExercises();
+  
+  // Load exercises from wger API (async, with fallback to hardcoded)
+  loadWgerExercises().then(wgerData => {
+    if (wgerData && wgerData.length > 0) {
+      window.wgerExercises = wgerData;
+      console.log('[COACHYAT] Using wger API:', wgerData.length, 'exercises');
+    } else {
+      window.wgerExercises = null;
+      console.log('[COACHYAT] Using hardcoded exercises (fallback)');
+    }
+    renderExercises();
+  }).catch(() => {
+    window.wgerExercises = null;
+    renderExercises();
+  });
   
   drawProgressRing('today-ring', 13, 50, 'var(--green)', '13%');
   drawMiniRing('nut-ring-p', 75, 'var(--green)', 'P');
@@ -159,6 +173,18 @@ function initApp() {
   drawWeightChart();
   updateProfileUI();
   renderTrainingCalendar();
+  
+  // Setup Open Food Facts autocomplete on the meal form
+  setupFoodAutocomplete('meal-name-input', 'off-results', (food) => {
+    document.getElementById('meal-name-input').value = food.name;
+    document.getElementById('meal-cal-input').value = food.calories;
+    document.getElementById('meal-prot-input').value = food.proteins;
+    document.getElementById('meal-carb-input').value = food.carbs;
+    document.getElementById('meal-fat-input').value = food.fat;
+  });
+  
+  // Update HF token status in settings
+  updateHFTokenStatus();
 }
 
 let viewedDay = state.day;
@@ -474,30 +500,47 @@ function renderExercises() {
     if (userEquip.includes('Salle')) allowedEquip = ['none', 'dumbbells', 'gym'];
   }
 
-  // Filter exercises based on routine type AND allowed equipment
+  // Use wger exercises if available, otherwise fallback to hardcoded
+  const sourceExercises = window.wgerExercises || exercises;
   const typeMap = ["push", "legs", "pull", "core"];
   const targetType = typeMap[routineIdx];
   
-  let filtered = exercises.filter(e => e.type === targetType && allowedEquip.includes(e.equip));
+  let filtered = sourceExercises.filter(e => e.type === targetType && allowedEquip.includes(e.equip));
   
-  // If we don't have enough exercises of that type with current equipment, add some 'core' or 'none' ones
   if (filtered.length < 3) {
-    const fallbacks = exercises.filter(e => e.equip === 'none' && !filtered.includes(e)).slice(0, 3);
+    const fallbacks = sourceExercises.filter(e => e.equip === 'none' && !filtered.includes(e)).slice(0, 3);
     filtered = [...filtered, ...fallbacks];
   }
   
-  // Slice to 6 max
+  // Shuffle for variety when using wger (more exercises = more variety)
+  if (window.wgerExercises && filtered.length > 6) {
+    // Seeded daily shuffle so it stays consistent for the same day
+    const seed = viewedDay * 7 + routineIdx;
+    filtered.sort((a, b) => {
+      const ha = ((a.id || 0) * 2654435761 + seed) % 1000;
+      const hb = ((b.id || 0) * 2654435761 + seed) % 1000;
+      return ha - hb;
+    });
+  }
+  
   filtered = filtered.slice(0, 6);
 
-  // Store them for live session
   if (viewedDay === state.day) window.currentDailyWorkout = filtered;
 
+  // Build muscle info if available
+  const showMuscles = window.wgerExercises ? true : false;
+
   el.innerHTML = `
-    <div class="fw-700 text-sm text-green mb-12">${routineNames[routineIdx]}</div>
+    <div class="fw-700 text-sm text-green mb-12">${routineNames[routineIdx]}${window.wgerExercises ? ' <span style="font-size:9px;color:var(--cyan);font-weight:400">• via wger API</span>' : ''}</div>
     ${filtered.map((e, i) => `
-      <div class="exercise-item" onclick="playVideo('${e.name.replace(/'/g, "\\'")}')">
+      <div class="exercise-item" onclick="playVideo('${e.name.replace(/'/g, "\\\'")}')">
         <div class="exercise-num">${i+1}</div>
-        <div class="exercise-info"><div class="exercise-name">${e.name}</div><div class="exercise-detail">${e.detail}</div></div>
+        <div class="exercise-info">
+          <div class="exercise-name">${e.name}</div>
+          <div class="exercise-detail">${e.detail}</div>
+          ${e.description ? `<div class="text-xs text-dim" style="margin-top:2px;line-height:1.3;">${e.description.substring(0, 80)}${e.description.length > 80 ? '...' : ''}</div>` : ''}
+          ${showMuscles && e.muscles && e.muscles.length > 0 ? `<div class="exercise-muscles">${e.muscles.map(m => `<span class="muscle-tag">${muscleCache?.[m] || 'Muscle'}</span>`).join('')}</div>` : ''}
+        </div>
         <div class="video-thumbnail">
           <div class="play-icon">▶</div>
         </div>
@@ -809,4 +852,40 @@ document.querySelectorAll('.paywall-toggle-btn').forEach(btn => {
 // ========== PWA ==========
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ========== HF TOKEN UI ==========
+function saveHFTokenFromUI() {
+  const input = document.getElementById('hf-token-input');
+  if (!input) return;
+  const token = input.value.trim();
+  
+  if (!token) {
+    alert('Entre ta clé Hugging Face (commence par hf_...)');
+    return;
+  }
+  
+  if (!token.startsWith('hf_')) {
+    alert('La clé doit commencer par "hf_". Vérifie sur huggingface.co/settings/tokens');
+    return;
+  }
+  
+  saveHFToken(token);
+  updateHFTokenStatus();
+  alert('Clé Coach IA enregistrée ! \ud83e\udd16 Le coach est maintenant intelligent.');
+}
+
+function updateHFTokenStatus() {
+  const statusEl = document.getElementById('hf-token-status');
+  const inputEl = document.getElementById('hf-token-input');
+  if (!statusEl) return;
+  
+  if (hasHFToken()) {
+    statusEl.textContent = '✅ Coach IA activé';
+    statusEl.className = 'text-xs mt-4 hf-active';
+    if (inputEl) inputEl.value = getHFToken().substring(0, 8) + '...';
+  } else {
+    statusEl.textContent = '❌ Aucune clé configurée — le coach utilise les réponses de base';
+    statusEl.className = 'text-xs mt-4 hf-inactive';
+  }
 }

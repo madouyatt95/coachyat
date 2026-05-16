@@ -226,40 +226,87 @@ const advancedReplies = {
   "temps": "Pas de problème, on passe en mode 'Quick Workout' de 10 min. Zéro excuse ! ⚡"
 };
 
-// Overriding sendChat from app.js without redefining it (just replace it in window if possible, or redefine if var/let)
+// Overriding sendChat to use Hugging Face AI when available
 window.sendChat = function() {
   const inp = document.getElementById('chat-input');
-  const msg = inp.value.trim().toLowerCase();
+  const msg = inp.value.trim();
   if (!msg) return;
   const box = document.getElementById('chat-messages');
-  box.innerHTML += `<div class="chat-bubble user">${inp.value}<div class="chat-time" style="color:rgba(0,0,0,.5)">${new Date().toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'})}</div></div>`;
+  const time = new Date().toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'});
+  box.innerHTML += `<div class="chat-bubble user">${msg}<div class="chat-time" style="color:rgba(0,0,0,.5)">${time}</div></div>`;
   inp.value = '';
-  
-  setTimeout(() => {
-    let reply = coachReplies[Math.floor(Math.random() * coachReplies.length)];
-    
-    if (msg.includes('fatigu') || msg.includes('dort') || msg.includes('dormi')) reply = advancedReplies["fatigue"];
-    else if (msg.includes('mal') || msg.includes('douleur') || msg.includes('blessé')) reply = advancedReplies["mal"];
-    else if (msg.includes('motiv') || msg.includes('flemme')) reply = advancedReplies["motiv"];
-    else if (msg.includes('temps') || msg.includes('vite')) reply = advancedReplies["temps"];
-
-    box.innerHTML += `<div class="chat-bubble coach">${reply}<div class="chat-time">${new Date().toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'})}</div></div>`;
-    
-    // Suggest quick workout if time is mentioned
-    if (reply === advancedReplies["temps"]) {
-      box.innerHTML += `
-        <div class="workout-suggestion-card" onclick="openQuickWorkout()">
-          <div class="flex items-center gap-12">
-            <div style="font-size:24px">⚡</div>
-            <div><div class="fw-700">Séance express 10 min</div><div class="text-sm text-dim">Circuit complet</div></div>
-          </div>
-        </div>`;
-    }
-    
-    box.scrollTop = box.scrollHeight;
-  }, 800 + Math.random() * 800);
   box.scrollTop = box.scrollHeight;
+  
+  // Show typing indicator
+  const typingId = 'typing-' + Date.now();
+  box.innerHTML += `<div class="chat-bubble coach" id="${typingId}"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+  box.scrollTop = box.scrollHeight;
+
+  // Try Hugging Face AI first
+  if (hasHFToken()) {
+    const persona = document.getElementById('coach-persona')?.value || 'normal';
+    const userContext = {
+      name: state.user?.name?.split(' ')[0],
+      goal: state.user?.goal || state.prefs?.goal,
+      weight: state.weight?.[state.weight.length - 1],
+      day: state.day,
+      streak: state.streak,
+      discipline: state.disciplineScore,
+      equipment: state.user?.equipment,
+      todayWorkout: document.getElementById('dashboard-workout-name')?.textContent,
+      workoutDone: state.workoutCompleted,
+    };
+    
+    chatWithCoach(msg, userContext, persona).then(reply => {
+      const el = document.getElementById(typingId);
+      if (reply) {
+        if (el) el.innerHTML = `${reply}<div class="chat-time">${time}</div>`;
+      } else {
+        // Fallback to local replies
+        const localReply = getLocalReply(msg.toLowerCase());
+        if (el) el.innerHTML = `${localReply}<div class="chat-time">${time}</div>`;
+      }
+      box.scrollTop = box.scrollHeight;
+      
+      // Suggest quick workout if relevant
+      if (msg.toLowerCase().includes('temps') || msg.toLowerCase().includes('vite')) {
+        box.innerHTML += `
+          <div class="workout-suggestion-card" onclick="openQuickWorkout()">
+            <div class="flex items-center gap-12">
+              <div style="font-size:24px">⚡</div>
+              <div><div class="fw-700">Séance express 10 min</div><div class="text-sm text-dim">Circuit complet</div></div>
+            </div>
+          </div>`;
+      }
+    });
+  } else {
+    // No HF token — use local fallback
+    setTimeout(() => {
+      const localReply = getLocalReply(msg.toLowerCase());
+      const el = document.getElementById(typingId);
+      if (el) el.innerHTML = `${localReply}<div class="chat-time">${time}</div>`;
+      box.scrollTop = box.scrollHeight;
+      
+      if (msg.toLowerCase().includes('temps') || msg.toLowerCase().includes('vite')) {
+        box.innerHTML += `
+          <div class="workout-suggestion-card" onclick="openQuickWorkout()">
+            <div class="flex items-center gap-12">
+              <div style="font-size:24px">⚡</div>
+              <div><div class="fw-700">Séance express 10 min</div><div class="text-sm text-dim">Circuit complet</div></div>
+            </div>
+          </div>`;
+      }
+    }, 800 + Math.random() * 800);
+  }
 };
+
+function getLocalReply(msg) {
+  if (msg.includes('fatigu') || msg.includes('dort') || msg.includes('dormi')) return advancedReplies["fatigue"];
+  if (msg.includes('mal') || msg.includes('douleur') || msg.includes('blessé')) return advancedReplies["mal"];
+  if (msg.includes('motiv') || msg.includes('flemme')) return advancedReplies["motiv"];
+  if (msg.includes('temps') || msg.includes('vite')) return advancedReplies["temps"];
+  return coachReplies[Math.floor(Math.random() * coachReplies.length)];
+}
 
 // Add quick suggestions to coach UI
 document.addEventListener('DOMContentLoaded', () => {

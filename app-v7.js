@@ -25,26 +25,48 @@ function generateFridgeRecipe() {
   const btn = document.querySelector('#modal-fridge .btn-primary');
   btn.innerText = "L'IA cuisine... 🧠";
   
-  setTimeout(() => {
-    const ingredients = inp.toLowerCase();
-    let recipe = { name: "Bowl Protéiné Improvisé", desc: "Un mélange équilibré avec ce que tu as sous la main.", p: "30g P", g: "40g G", l: "12g L" };
-    
-    if (ingredients.includes("poulet")) {
-      recipe = { name: "Poulet Sauté aux Légumes", desc: "Fais dorer le poulet avec tes légumes. Simple et efficace.", p: "45g P", g: "20g G", l: "10g L" };
-    } else if (ingredients.includes("oeuf") || ingredients.includes("œuf")) {
-      recipe = { name: "Omelette Gourmande", desc: "Une omelette riche en protéines avec tes ingrédients restants.", p: "32g P", g: "10g G", l: "22g L" };
-    } else if (ingredients.includes("saumon")) {
-      recipe = { name: "Saumon et Accompagnement", desc: "Le plein d'Oméga-3. Parfait pour la récupération.", p: "40g P", g: "30g G", l: "20g L" };
-    }
+  // Try HF AI first
+  if (hasHFToken()) {
+    const goal = state.user?.goal || state.prefs?.goal || 'santé';
+    generateRecipeFromIngredients(inp, goal).then(recipe => {
+      if (recipe) {
+        document.getElementById('fridge-result').classList.remove('hidden');
+        document.getElementById('fridge-recipe-name').innerText = recipe.name;
+        document.getElementById('fridge-recipe-desc').innerText = recipe.description;
+        document.getElementById('fridge-p').innerText = recipe.p;
+        document.getElementById('fridge-g').innerText = recipe.g;
+        document.getElementById('fridge-l').innerText = recipe.l;
+        btn.innerText = "Générer une autre recette";
+      } else {
+        // Fallback to local logic
+        applyLocalFridgeRecipe(inp, btn);
+      }
+    }).catch(() => applyLocalFridgeRecipe(inp, btn));
+  } else {
+    // No token — use local logic
+    setTimeout(() => applyLocalFridgeRecipe(inp, btn), 1500);
+  }
+}
 
-    document.getElementById('fridge-result').classList.remove('hidden');
-    document.getElementById('fridge-recipe-name').innerText = recipe.name;
-    document.getElementById('fridge-recipe-desc').innerText = recipe.desc;
-    document.getElementById('fridge-p').innerText = recipe.p;
-    document.getElementById('fridge-g').innerText = recipe.g;
-    document.getElementById('fridge-l').innerText = recipe.l;
-    btn.innerText = "Générer une autre recette";
-  }, 1500);
+function applyLocalFridgeRecipe(inp, btn) {
+  const ingredients = inp.toLowerCase();
+  let recipe = { name: "Bowl Protéiné Improvisé", desc: "Un mélange équilibré avec ce que tu as sous la main.", p: "30g P", g: "40g G", l: "12g L" };
+  
+  if (ingredients.includes("poulet")) {
+    recipe = { name: "Poulet Sauté aux Légumes", desc: "Fais dorer le poulet avec tes légumes. Simple et efficace.", p: "45g P", g: "20g G", l: "10g L" };
+  } else if (ingredients.includes("oeuf") || ingredients.includes("œuf")) {
+    recipe = { name: "Omelette Gourmande", desc: "Une omelette riche en protéines avec tes ingrédients restants.", p: "32g P", g: "10g G", l: "22g L" };
+  } else if (ingredients.includes("saumon")) {
+    recipe = { name: "Saumon et Accompagnement", desc: "Le plein d'Oméga-3. Parfait pour la récupération.", p: "40g P", g: "30g G", l: "20g L" };
+  }
+
+  document.getElementById('fridge-result').classList.remove('hidden');
+  document.getElementById('fridge-recipe-name').innerText = recipe.name;
+  document.getElementById('fridge-recipe-desc').innerText = recipe.desc;
+  document.getElementById('fridge-p').innerText = recipe.p;
+  document.getElementById('fridge-g').innerText = recipe.g;
+  document.getElementById('fridge-l').innerText = recipe.l;
+  btn.innerText = "Générer une autre recette";
 }
 
 // 3. CARDIO AUDIO-GUIDÉ

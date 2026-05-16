@@ -599,6 +599,14 @@
       </div>
     </div>
 
+    <div class="mb-16">
+      <label class="text-sm fw-600 block mb-4">🤖 Clé Coach IA (Hugging Face)</label>
+      <div class="text-xs text-dim mb-8">Crée ta clé gratuite sur <a href="https://huggingface.co/settings/tokens" target="_blank" style="color:var(--cyan); text-decoration:underline;">huggingface.co/settings/tokens</a></div>
+      <input type="password" id="hf-token-input" class="onboarding-input" style="width:100%; margin:0; font-family:monospace; font-size:12px;" placeholder="hf_aBcDeFgHiJkLmN...">
+      <div id="hf-token-status" class="text-xs mt-4" style="color:var(--text-tertiary)"></div>
+      <button class="btn btn-outline w-full mt-8" style="border-color:var(--cyan); color:var(--cyan); padding:8px;" onclick="saveHFTokenFromUI()">Enregistrer la clé</button>
+    </div>
+
     <button class="btn btn-primary w-full mt-12" onclick="document.getElementById('modal-settings').classList.add('hidden')">Fermer</button>
   </div>
 </div>
@@ -669,11 +677,12 @@
   <div class="modal-content">
     <div class="modal-handle"></div>
     <div class="modal-title" id="add-meal-title">Ajouter un repas</div>
-    <div class="text-sm text-dim mb-16">Enregistre tes macros pour un suivi précis.</div>
+    <div class="text-sm text-dim mb-16">Tape le nom d'un aliment pour remplir les macros automatiquement 🔍</div>
     
-    <div class="mb-16">
-      <label class="text-sm fw-600 block mb-4">Aliment / Repas</label>
-      <input type="text" id="meal-name-input" class="onboarding-input" style="width:100%; margin:0;" placeholder="ex: Poulet, Riz, Avocat">
+    <div class="mb-16" style="position:relative;">
+      <label class="text-sm fw-600 block mb-4">🔍 Rechercher un aliment</label>
+      <input type="text" id="meal-name-input" class="onboarding-input" style="width:100%; margin:0;" placeholder="ex: Poulet, Riz, Avocat" autocomplete="off">
+      <div id="off-results" class="off-results-container hidden"></div>
     </div>
     
     <div class="flex gap-12 mb-16">
@@ -709,6 +718,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
 
+<script src="api-wger.js"></script>
+<script src="api-openfoodfacts.js"></script>
+<script src="api-huggingface.js"></script>
 <script src="app.js"></script>
 <script src="app-v2.js"></script>
 <script src="app-v3.js"></script>
@@ -821,6 +833,38 @@
 .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: #fff; transition: .4s; border-radius: 50%; }
 input:checked + .slider { background-color: var(--green); }
 input:checked + .slider:before { transform: translateX(20px); }
+
+/* Open Food Facts Autocomplete */
+.off-results-container { position:absolute; top:100%; left:0; right:0; background:var(--bg-card-solid); border:1px solid var(--glass-border); border-radius:0 0 var(--radius) var(--radius); max-height:280px; overflow-y:auto; z-index:100; box-shadow:0 8px 30px rgba(0,0,0,0.5); }
+.off-results-container.hidden { display:none; }
+.off-result-item { display:flex; align-items:center; gap:12px; padding:10px 14px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.05); transition:background 0.2s; }
+.off-result-item:hover, .off-result-item:active { background:rgba(182,255,59,0.08); }
+.off-result-img { width:40px; height:40px; border-radius:8px; object-fit:cover; flex-shrink:0; background:var(--glass); }
+.off-placeholder { display:flex; align-items:center; justify-content:center; font-size:18px; }
+.off-result-info { flex:1; min-width:0; }
+.off-result-name { font-weight:700; font-size:13px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.off-result-brand { font-size:10px; color:var(--text-tertiary); margin-top:1px; }
+.off-result-macros { display:flex; gap:8px; margin-top:4px; font-size:10px; font-weight:600; }
+.off-result-macros span { color:var(--text-secondary); }
+.off-result-macros .off-p { color:var(--green); }
+.off-result-macros .off-c { color:var(--orange); }
+.off-result-macros .off-f { color:var(--purple); }
+.off-loading, .off-no-result { padding:16px; text-align:center; font-size:12px; color:var(--text-tertiary); }
+
+/* Exercise muscle tags */
+.exercise-muscles { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
+.muscle-tag { font-size:9px; padding:2px 6px; border-radius:4px; background:rgba(182,255,59,0.1); color:var(--green); font-weight:600; }
+
+/* HF Token Status */
+.hf-active { color:var(--green) !important; }
+.hf-inactive { color:var(--text-tertiary) !important; }
+
+/* AI typing indicator */
+.typing-indicator { display:flex; gap:4px; padding:4px 0; }
+.typing-indicator span { width:6px; height:6px; border-radius:50%; background:var(--green); animation:typingBounce 1.2s infinite; }
+.typing-indicator span:nth-child(2) { animation-delay:0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay:0.4s; }
+@keyframes typingBounce { 0%,60%,100% { transform:translateY(0); } 30% { transform:translateY(-6px); } }
 </style>
 
 
