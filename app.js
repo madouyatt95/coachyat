@@ -527,27 +527,34 @@ function renderExercises() {
 
   if (viewedDay === state.day) window.currentDailyWorkout = filtered;
 
-  // Build muscle info if available
-  const showMuscles = window.wgerExercises ? true : false;
+  // Render exercise cards with images and muscle labels
+  let exerciseHtml = '';
+  filtered.forEach((e, i) => {
+    const safeName = (e.name || '').replace(/'/g, '');
+    const muscleHtml = (e.muscles && e.muscles.length > 0)
+      ? '<div class="exercise-muscles">' + e.muscles.slice(0,4).map(function(m) { return '<span class="muscle-tag">' + (typeof getMuscleLabel === 'function' ? getMuscleLabel(m) : 'Muscle') + '</span>'; }).join('') + '</div>'
+      : '';
+    const descHtml = e.description
+      ? '<div class="text-xs text-dim" style="margin-top:2px;line-height:1.3;">' + e.description.substring(0,100) + (e.description.length > 100 ? '...' : '') + '</div>'
+      : '';
+    const thumbHtml = e.image
+      ? '<div class="video-thumbnail" style="background:url(' + e.image + ') center/cover;border-radius:8px;min-width:56px;height:56px;border:1px solid rgba(255,255,255,0.1);"></div>'
+      : '<div class="video-thumbnail"><div class="play-icon">\u25b6</div></div>';
 
-  el.innerHTML = `
-    <div class="fw-700 text-sm text-green mb-12">${routineNames[routineIdx]}${window.wgerExercises ? ' <span style="font-size:9px;color:var(--cyan);font-weight:400">• via wger API</span>' : ''}</div>
-    ${filtered.map((e, i) => `
-      <div class="exercise-item" onclick="playVideo('${e.name.replace(/'/g, "\\\'")}')">
-        <div class="exercise-num">${i+1}</div>
-        <div class="exercise-info">
-          <div class="exercise-name">${e.name}</div>
-          <div class="exercise-detail">${e.detail}</div>
-          ${e.description ? `<div class="text-xs text-dim" style="margin-top:2px;line-height:1.3;">${e.description.substring(0, 80)}${e.description.length > 80 ? '...' : ''}</div>` : ''}
-          ${showMuscles && e.muscles && e.muscles.length > 0 ? `<div class="exercise-muscles">${e.muscles.map(m => `<span class="muscle-tag">${muscleCache?.[m] || 'Muscle'}</span>`).join('')}</div>` : ''}
-        </div>
-        <div class="video-thumbnail">
-          <div class="play-icon">▶</div>
-        </div>
-      </div>`).join('')}
-  `;
+    exerciseHtml += '<div class="exercise-item" onclick="playVideo(\'' + safeName + '\')">'
+      + '<div class="exercise-num">' + (i+1) + '</div>'
+      + '<div class="exercise-info">'
+      + '<div class="exercise-name">' + e.name + '</div>'
+      + '<div class="exercise-detail">' + e.detail + '</div>'
+      + descHtml + muscleHtml
+      + '</div>' + thumbHtml + '</div>';
+  });
+
+  // Header + all exercise cards
+  var hdr = '<div class="fw-700 text-sm text-green mb-12">' + routineNames[routineIdx] + (window.wgerExercises ? ' <span style="font-size:9px;color:var(--cyan);font-weight:400">\u2022 wger API</span>' : '') + '</div>';
+  el.innerHTML = hdr + exerciseHtml;
     
-  const trainingBtn = document.getElementById('training-workout-btn');
+    const trainingBtn = document.getElementById('training-workout-btn');
   if (!trainingBtn) return;
   
   if (state.workoutCompleted && viewedDay === state.day) {

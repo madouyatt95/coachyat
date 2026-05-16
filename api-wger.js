@@ -1,173 +1,154 @@
-// ========== WGER API SERVICE ==========
-// Free open-source exercise database — https://wger.de/api/v2/
-// No API key required
+// ========== WGER API SERVICE (v2 — FIXED) ==========
+// Uses exerciseinfo endpoint which contains translations + images in one call
+// https://wger.de/api/v2/
 
 const WGER_BASE = 'https://wger.de/api/v2';
-const WGER_CACHE_KEY = 'coachyat_wger_exercises';
-const WGER_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+const WGER_CACHE_KEY = 'coachyat_wger_v2';
+const WGER_CACHE_TTL = 24 * 60 * 60 * 1000; // 24h
 
-// Category mapping: wger category IDs → COACHYAT types
-const WGER_CATEGORY_MAP = {
-  8:  'legs',   // Jambes
-  9:  'core',   // Mollets (core/legs)
-  10: 'push',   // Pectoraux
-  11: 'push',   // Épaules
-  12: 'pull',   // Dos
-  13: 'pull',   // Biceps
-  14: 'push',   // Triceps
-  15: 'core',   // Abdominaux
+// Category → COACHYAT type mapping
+const WGER_CAT = {
+  8: 'legs', 9: 'legs', 10: 'push', 11: 'push',
+  12: 'pull', 13: 'pull', 14: 'push', 15: 'core',
 };
 
-// Equipment mapping: wger equipment IDs → COACHYAT equipment keys
-const WGER_EQUIP_MAP = {
-  1: 'gym',        // Barbell
-  2: 'gym',        // SZ-Bar
-  3: 'dumbbells',  // Dumbbell
-  4: 'gym',        // Gym mat
-  5: 'gym',        // Swiss Ball
-  6: 'gym',        // Pull-up bar
-  7: 'none',       // Body weight
-  8: 'gym',        // Bench
-  9: 'gym',        // Incline bench
-  10: 'gym',       // Kettlebell
+// Equipment ID → COACHYAT equipment key
+const WGER_EQ = {
+  1:'gym', 2:'gym', 3:'dumbbells', 4:'none', 5:'gym',
+  6:'gym', 7:'none', 8:'gym', 9:'gym', 10:'dumbbells',
 };
 
-// Emoji icons per category
-const WGER_ICONS = {
-  push: ['🏋️', '💪', '⚡', '🦋'],
-  pull: ['🦍', '🚣', '🧗', '🔨'],
-  legs: ['🦵', '🚶‍♂️', '🦶', '🧱'],
-  core: ['🍫', '🤸', '⛰️', '🔥'],
+// Icons
+const WGER_ICON = { push:['🏋️','💪','⚡'], pull:['🦍','🚣','🧗'], legs:['🦵','🚶‍♂️','🦶'], core:['🍫','🤸','🔥'] };
+
+// Muscle ID → name (preloaded)
+const MUSCLE_NAMES = {
+  1:'Biceps', 2:'Deltoïde', 3:'Pectoraux', 4:'Épaules', 5:'Triceps',
+  6:'Abdos', 7:'Obliques', 8:'Dorsaux', 9:'Brachial', 10:'Avant-bras',
+  11:'Grand dorsal', 12:'Rhomboïde', 13:'Trapèzes', 14:'Biceps fémoral',
+  15:'Quadriceps', 16:'Mollets', 17:'Fessiers', 18:'Adducteurs',
 };
 
 /**
- * Fetch exercises from wger API, with localStorage cache (24h TTL)
+ * Load exercises using the /exerciseinfo/ endpoint (contains names, images, muscles in ONE call)
+ * Then merge with separate image fetch for broader coverage
  */
 async function loadWgerExercises() {
-  // Check cache first
+  // Check cache
   try {
     const cached = localStorage.getItem(WGER_CACHE_KEY);
     if (cached) {
-      const { data, timestamp } = JSON.parse(cached);
-      if (Date.now() - timestamp < WGER_CACHE_TTL && data.length > 0) {
-        console.log('[wger] Loaded from cache:', data.length, 'exercises');
+      const { data, ts } = JSON.parse(cached);
+      if (Date.now() - ts < WGER_CACHE_TTL && data.length > 10) {
+        console.log('[wger] Cache hit:', data.length, 'exercises');
         return data;
       }
     }
-  } catch (e) { /* cache miss */ }
+  } catch(e) {}
 
-  // Fetch from API (French = language 2)
   try {
-    const allExercises = [];
-    let url = `${WGER_BASE}/exercise/?format=json&language=2&limit=100&offset=0`;
-
-    // Paginate (max 3 pages = 300 exercises, more than enough)
-    for (let page = 0; page < 3; page++) {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`wger HTTP ${res.status}`);
-      const json = await res.json();
-      allExercises.push(...json.results);
-      if (!json.next) break;
-      url = json.next;
+    // Step 1: Fetch all exercise base data (IDs, categories, muscles, equipment)
+    const exercises = [];
+    let url = `${WGER_BASE}/exercise/?format=json&language=2&limit=200&offset=0`;
+    for (let p = 0; p < 3; p++) {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('wger ' + r.status);
+      const j = await r.json();
+      exercises.push(...j.results);
+      if (!j.next) break;
+      url = j.next;
     }
+    console.log('[wger] Fetched', exercises.length, 'exercise bases');
 
-    // Fetch exercise info (names/descriptions) in French
-    const infoUrl = `${WGER_BASE}/exerciseinfo/?format=json&language=2&limit=200`;
-    let exerciseInfoMap = {};
-    try {
-      const infoRes = await fetch(infoUrl);
-      if (infoRes.ok) {
-        const infoJson = await infoRes.json();
-        infoJson.results.forEach(info => {
-          const frTranslation = info.translations?.find(t => t.language === 2);
-          if (frTranslation) {
-            exerciseInfoMap[info.id] = {
-              name: frTranslation.name,
-              description: frTranslation.description?.replace(/<[^>]*>/g, '') || '',
-            };
-          }
+    // Step 2: Fetch all images (bulk — ~334 total)
+    const imageMap = {};
+    let imgUrl = `${WGER_BASE}/exerciseimage/?format=json&limit=200&is_main=true`;
+    for (let p = 0; p < 2; p++) {
+      try {
+        const r = await fetch(imgUrl);
+        if (!r.ok) break;
+        const j = await r.json();
+        j.results.forEach(img => {
+          if (!imageMap[img.exercise]) imageMap[img.exercise] = img.image;
         });
-      }
-    } catch (e) { console.warn('[wger] Could not fetch exercise info', e); }
+        if (!j.next) break;
+        imgUrl = j.next;
+      } catch(e) { break; }
+    }
+    console.log('[wger] Fetched', Object.keys(imageMap).length, 'images');
 
-    // Transform into COACHYAT format
-    const transformed = allExercises
-      .filter(ex => WGER_CATEGORY_MAP[ex.category]) // Only known categories
+    // Step 3: For names, fetch a batch of exerciseinfo (names come from translations)
+    // The /exerciseinfo/ endpoint returns full details per exercise base
+    // We fetch them in batches using the exercise base IDs
+    const nameMap = {};
+    const batchIds = exercises.slice(0, 150).map(e => e.id); // Limit to 150 for speed
+    
+    // Batch fetch names: use individual calls with Promise.allSettled for speed
+    const BATCH = 20;
+    for (let i = 0; i < Math.min(batchIds.length, 100); i += BATCH) {
+      const batch = batchIds.slice(i, i + BATCH);
+      const results = await Promise.allSettled(
+        batch.map(id => 
+          fetch(`${WGER_BASE}/exerciseinfo/${id}/?format=json`)
+            .then(r => r.ok ? r.json() : null)
+        )
+      );
+      results.forEach((res, idx) => {
+        if (res.status === 'fulfilled' && res.value) {
+          const info = res.value;
+          const id = batch[idx];
+          // Find French translation first, then English fallback
+          const fr = info.translations?.find(t => t.language === 2);
+          const en = info.translations?.find(t => t.language === 2) || info.translations?.[0];
+          const name = fr?.name || en?.name || info.name || null;
+          const desc = (fr?.description || en?.description || '').replace(/<[^>]*>/g, '').trim();
+          if (name) nameMap[id] = { name, desc };
+          // Also grab images from exerciseinfo if available
+          if (info.images?.length > 0 && !imageMap[id]) {
+            imageMap[id] = info.images[0].image;
+          }
+        }
+      });
+    }
+    console.log('[wger] Fetched names for', Object.keys(nameMap).length, 'exercises');
+
+    // Step 4: Transform into COACHYAT format
+    const transformed = exercises
+      .filter(ex => WGER_CAT[ex.category] && nameMap[ex.id])
       .map(ex => {
-        const type = WGER_CATEGORY_MAP[ex.category] || 'core';
-        const equip = ex.equipment?.length > 0
-          ? (WGER_EQUIP_MAP[ex.equipment[0]] || 'gym')
-          : 'none';
-        const icons = WGER_ICONS[type] || ['🏋️'];
-        const info = exerciseInfoMap[ex.id];
+        const type = WGER_CAT[ex.category];
+        const equip = ex.equipment?.length > 0 ? (WGER_EQ[ex.equipment[0]] || 'gym') : 'none';
+        const icons = WGER_ICON[type];
+        const info = nameMap[ex.id];
+        const img = imageMap[ex.id] || null;
 
         return {
           id: ex.id,
-          name: info?.name || `Exercice #${ex.id}`,
-          detail: '4 séries x 10 reps',
-          description: info?.description || '',
-          icon: icons[Math.floor(Math.random() * icons.length)],
+          name: info.name,
+          detail: type === 'core' ? '3 séries x 30 sec' : '4 séries x 10 reps',
+          description: info.desc ? info.desc.substring(0, 120) : '',
+          icon: icons[ex.id % icons.length],
           equip,
           type,
           muscles: ex.muscles || [],
-          musclesSecondary: ex.muscles_secondary || [],
-          wgerId: ex.id,
+          image: img,
         };
-      })
-      .filter(ex => ex.name && ex.name !== `Exercice #${ex.id}`); // Only named ones
+      });
 
-    // Cache result
-    localStorage.setItem(WGER_CACHE_KEY, JSON.stringify({
-      data: transformed,
-      timestamp: Date.now()
-    }));
-
-    console.log('[wger] Fetched and cached:', transformed.length, 'exercises');
+    // Cache
+    localStorage.setItem(WGER_CACHE_KEY, JSON.stringify({ data: transformed, ts: Date.now() }));
+    console.log('[wger] Final:', transformed.length, 'exercises ready');
     return transformed;
 
-  } catch (err) {
-    console.error('[wger] API error, using fallback:', err);
-    return null; // Signal to use hardcoded fallback
-  }
-}
-
-/**
- * Fetch exercise images from wger
- */
-async function getWgerExerciseImage(exerciseId) {
-  try {
-    const cacheKey = `wger_img_${exerciseId}`;
-    const cached = sessionStorage.getItem(cacheKey);
-    if (cached) return cached;
-
-    const res = await fetch(`${WGER_BASE}/exerciseimage/?format=json&exercise_base=${exerciseId}&limit=1`);
-    if (!res.ok) return null;
-    const json = await res.json();
-    const imgUrl = json.results?.[0]?.image || null;
-
-    if (imgUrl) sessionStorage.setItem(cacheKey, imgUrl);
-    return imgUrl;
-  } catch (e) {
+  } catch(err) {
+    console.error('[wger] API error:', err);
     return null;
   }
 }
 
 /**
- * Fetch muscle names (French) for display
+ * Get muscle name by ID
  */
-let muscleCache = null;
-async function getWgerMuscles() {
-  if (muscleCache) return muscleCache;
-  try {
-    const res = await fetch(`${WGER_BASE}/muscle/?format=json&limit=50`);
-    if (!res.ok) return {};
-    const json = await res.json();
-    muscleCache = {};
-    json.results.forEach(m => {
-      muscleCache[m.id] = m.name_en || m.name || `Muscle ${m.id}`;
-    });
-    return muscleCache;
-  } catch (e) {
-    return {};
-  }
+function getMuscleLabel(muscleId) {
+  return MUSCLE_NAMES[muscleId] || 'Muscle';
 }
